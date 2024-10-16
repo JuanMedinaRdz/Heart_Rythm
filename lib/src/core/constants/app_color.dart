@@ -4,7 +4,7 @@ class AppColors {
   // Colores para los botones primarios
   static const Color primaryStart = Color(0xFFFF8177); // Color inicial del degradado
   static const Color primaryEnd = Color(0xFFB12A5B);   // Color final del degradado
-
+  static const Color iconColor = Colors.white;
   // Degradado para botones primarios
   static const Gradient primaryGradientButton = LinearGradient(
     colors: [

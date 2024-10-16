@@ -1,0 +1,17 @@
+
+
+import 'package:flutter/material.dart';
+
+class AppTextStyles {
+  // Titulo Principal
+  static const TextStyle mainTitle = TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  );
+  static const TextStyle subtitle = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  );
+}
