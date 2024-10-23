@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "408136082031",
+    "project_id": "hearthrythm-ac49e",
+    "storage_bucket": "hearthrythm-ac49e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408136082031:android:09b8a48d1558e9fb02239a",
+        "android_client_info": {
+          "package_name": "com.example.hearth_rythm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtAaFGCHGL8iaAw_Nre0h8wxllxeLQUGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

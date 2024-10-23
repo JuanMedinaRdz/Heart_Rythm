@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hearth_rythm/src/widgets/gradient_container_button.dart';
 
 class CarouselButtonsNorth extends StatelessWidget {
@@ -18,7 +19,7 @@ class CarouselButtonsNorth extends StatelessWidget {
               child: GradientContainerButton(
                 text: "Añadir alumno",
                 onPressed: () {
-                  // Acción del botón 1
+                   GoRouter.of(context).push('/north_screen/add_student_screen');
                 },
                 textSize: 20,
                 icon: const Icon(Icons.group_add_outlined),

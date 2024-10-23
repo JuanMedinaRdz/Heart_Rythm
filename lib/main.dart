@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hearth_rythm/firebase_options.dart';
+import 'package:hearth_rythm/src/core/services/firebase_service.dart';
 import 'src/router/router.dart';
-
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await FirebaseService.initializeFirebase(
+    options: DefaultFirebaseOptions.currentPlatform
+  ); //Inicializa Firebase 
   runApp(const MainApp());
 }
 
