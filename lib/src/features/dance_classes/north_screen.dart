@@ -24,7 +24,7 @@ class NorthScreen extends StatelessWidget {
           CalendarWidget(),
         ],
       ),
-      bottomNavigationBar: const NavBarNorth(),
+      bottomNavigationBar: const NavBarNorth(currentIndex: 0,),
     );
   }
 }

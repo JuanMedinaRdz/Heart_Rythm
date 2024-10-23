@@ -21,6 +21,14 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   DateTime? _classDate;
 
   final _studentRepo = StudentRepository();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,151 +41,117 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Name Form Field
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    hintText: 'Ingresa tu nombre',
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                      borderSide: const BorderSide(
-                        color: AppColors.primaryStart
-                      ),
-                    ),
-                  ),
-                  validator: (value) {
-                    if(value == null || value.isEmpty) {
-                      return 'Por favor ingrese un nombre';
-                    }
-                    return null;
-                  },
-                ),
+                _buildFormField('Ingresa tu nombre', _nameController),
                 const SizedBox(height: 16.0),
-        
-                // Phone Form Field
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                    hintText: 'Ingresa tu numero telefonico',
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                      borderSide: const BorderSide(color: AppColors.primaryStart
-                      ),
-                    ),
-                  ),
-                  validator: (value) {
-                    if(value == null || value.isEmpty) {
-                      return 'Por favor ingresa un numero para contactarte';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0,),
-                // Buttons to select the danceStyle
-        
-                Text('Selecciona el estilo de baile'),
+                _buildFormField('Ingresa tu número telefónico', _phoneController),
+                const SizedBox(height: 16.0),
+                _buildSectionTitle('Selecciona el estilo de baile'),
                 _buildDanceStyleButtons(),
-        
-                // Botones de horario
                 const SizedBox(height: 16.0),
-                const Text('Selecciona el horario:'),
+                _buildSectionTitle('Selecciona el horario'),
                 _buildScheduleButtons(),
-        
-                 // Botones de nivel
                 const SizedBox(height: 16.0),
-                Text('Selecciona el nivel:'),
+                _buildSectionTitle('Selecciona el nivel'),
                 _buildLevelButtons(),
-        
-                // Boton para agregar el alumno
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if(_formKey.currentState!.validate()) {
-                      _saveStudent();
-                    }
-                  }, 
-                  child: const Text('Agregar Alumno')
-                  )
-        
-        
+                const SizedBox(height: 24.0),
+                Center(
+                  
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradientButton,
+                      borderRadius: BorderRadius.circular(16.0)
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0)
+                        )
+                      ),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _saveStudent();
+                        }
+                      },
+                      child: const Text('Agregar Alumno'),
+                    ),
+                  ),
+                ),
               ],
-            )),
+            ),
+          ),
         ),
       ),
     );
   }
-  
-   Widget _buildDanceStyleButtons() {
-    return Row(
-      children: [
-        _buildSelectionButton('Salsa', _selectedDanceStyle == 'Salsa', () {
-          setState(() {
-            _selectedDanceStyle = 'Salsa';
-          });
-        }),
-        const SizedBox(width: 8.0),
-        _buildSelectionButton('Cumbia', _selectedDanceStyle == 'Cumbia', () {
-          setState(() {
-            _selectedDanceStyle = 'Cumbia';
-          });
-        }),
-      ],
+
+  Widget _buildFormField(String hintText, TextEditingController controller) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        filled: true,
+        fillColor: Colors.transparent,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: const BorderSide(color: AppColors.primaryStart),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor ingresa un valor';
+        }
+        return null;
+      },
     );
   }
 
-   Widget _buildScheduleButtons() {
-    return Row(
-      children: [
-        _buildSelectionButton('Lun/Mie', _selectedSchedule == 'Lun/Mie', () {
-          setState(() {
-            _selectedSchedule = 'Lun/Mie';
-          });
-        }),
-        const SizedBox(width: 8.0),
-        _buildSelectionButton('Mar/Jue', _selectedSchedule == 'Mar/Jue', () {
-          setState(() {
-            _selectedSchedule = 'Mar/Jue';
-          });
-        }),
-        const SizedBox(width: 8.0),
-        _buildSelectionButton('Sabado', _selectedSchedule == 'Sabado', () {
-          setState(() {
-            _selectedSchedule = 'Sabado';
-          });
-        }),
-      ],
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(fontWeight: FontWeight.bold),
     );
   }
 
-   Widget _buildLevelButtons() {
+  Widget _buildDanceStyleButtons() {
+    return Row(
+      children: ['Salsa', 'Cumbia'].map((style) {
+        return _buildSelectionButton(
+          style,
+          _selectedDanceStyle == style,
+          () => setState(() => _selectedDanceStyle = style),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildScheduleButtons() {
+    return Row(
+      children: ['Lun/Mie', 'Mar/Jue', 'Sábado'].map((schedule) {
+        return _buildSelectionButton(
+          schedule,
+          _selectedSchedule == schedule,
+          () => setState(() => _selectedSchedule = schedule),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildLevelButtons() {
     return Column(
       children: [
         Row(
-          children: [
-            _buildSelectionButton('Básico', _selectedLevel == 'Básico', () {
-              setState(() {
-                _selectedLevel = 'Básico';
-              });
-            }),
-            const SizedBox(width: 8.0),
-            _buildSelectionButton('Intermedio', _selectedLevel == 'Intermedio', () {
-              setState(() {
-                _selectedLevel = 'Intermedio';
-              });
-            }),
-            const SizedBox(width: 8.0),
-            _buildSelectionButton('Clase Muestra', _selectedLevel == 'Clase Muestra', () {
-              setState(() {
-                _selectedLevel = 'Clase Muestra';
-              });
-            }),
-          ],
+          children: ['Básico', 'Intermedio', 'Clase Muestra'].map((level) {
+            return _buildSelectionButton(
+              level,
+              _selectedLevel == level,
+              () => setState(() => _selectedLevel = level),
+            );
+          }).toList(),
         ),
-        if (_selectedLevel == 'Clase Muestra') _buildDatePicker()
+        if (_selectedLevel == 'Clase Muestra') _buildDatePicker(),
       ],
     );
   }
@@ -188,7 +162,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: isSelected ? AppColors.primaryEnd : Colors.transparent,
-          side: BorderSide(color: AppColors.primaryStart),
+          side: const BorderSide(color: AppColors.primaryStart),
         ),
         child: Text(text),
       ),
@@ -216,7 +190,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     );
   }
 
-    void _saveStudent() {
+  void _saveStudent() {
     final newStudent = Student(
       name: _nameController.text,
       phone: _phoneController.text,
@@ -228,14 +202,13 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
     _studentRepo.addStudent(newStudent).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Alumno agregado con éxito')),
+        const SnackBar(content: Text('Alumno agregado con éxito')),
       );
       Navigator.pop(context);
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al agregar alumno')),
+        const SnackBar(content: Text('Error al agregar alumno')),
       );
     });
   }
-
 }
