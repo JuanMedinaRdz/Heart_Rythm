@@ -41,9 +41,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFormField('Ingresa tu nombre', _nameController),
+                _buildTextField('Ingresa tu nombre', _nameController),
                 const SizedBox(height: 16.0),
-                _buildFormField('Ingresa tu número telefónico', _phoneController),
+                _buildPhoneField('Ingresa tu número telefónico', _phoneController),
                 const SizedBox(height: 16.0),
                 _buildSectionTitle('Selecciona el estilo de baile'),
                 _buildDanceStyleButtons(),
@@ -87,9 +87,30 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     );
   }
 
-  Widget _buildFormField(String hintText, TextEditingController controller) {
+  Widget _buildTextField(String hintText, TextEditingController controller) {
     return TextFormField(
       controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        filled: true,
+        fillColor: Colors.transparent,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: const BorderSide(color: AppColors.primaryStart),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor ingresa un valor';
+        }
+        return null;
+      },
+    );
+  }
+    Widget _buildPhoneField(String hintText, TextEditingController controller) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.phone,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,

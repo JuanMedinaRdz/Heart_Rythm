@@ -16,7 +16,7 @@ class NorthScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body:  Column(
+      body:  const Column(
         children: [
           // Carrusel de botones
           CarouselButtonsNorth(),
