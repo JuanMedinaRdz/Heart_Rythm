@@ -5,6 +5,7 @@ class AppColors {
   static const Color primaryStart = Color(0xFFFF8177); // Color inicial del degradado
   static const Color primaryEnd = Color(0xFFB12A5B);   // Color final del degradado
   static const Color iconColor = Colors.white;
+  static const Color studentContainer = Color.fromARGB(255, 234, 221, 255);
   // Degradado para botones primarios
   static const Gradient primaryGradientButton = LinearGradient(
     colors: [

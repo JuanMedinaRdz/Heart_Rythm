@@ -14,4 +14,9 @@ class AppTextStyles {
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
+
+    static const TextStyle studentTextContainer = TextStyle(
+    fontSize: 15,
+    color: Colors.black,
+  );
 }

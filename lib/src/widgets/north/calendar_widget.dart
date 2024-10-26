@@ -7,10 +7,10 @@ class CalendarWidget extends StatefulWidget {
   const CalendarWidget({Key? key}) : super(key: key);
 
   @override
-  _CalendarWidgetState createState() => _CalendarWidgetState();
+  CalendarWidgetState createState() => CalendarWidgetState();
 }
 
-class _CalendarWidgetState extends State<CalendarWidget> {
+class CalendarWidgetState extends State<CalendarWidget> {
   late Map<DateTime, List<dynamic>> _events = {}; // Almacenar eventos del calendario
   DateTime _selectedDay = DateTime.now();
   List<dynamic> _selectedEvents = [];
@@ -18,7 +18,15 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   @override
   void initState() {
     super.initState();
-    _loadEventsFromFirebase();
+    loadEventsFromFirebase();
+  }
+
+  // Este método se llama cada vez que hay un cambio en las dependencias,
+  // útil para refrescar los datos al regresar a la pantalla.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadEventsFromFirebase(); // Recarga los eventos al regresar
   }
 
   // Función para normalizar las fechas (quitar la hora)
@@ -27,7 +35,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   }
 
   // Cargar eventos desde Firebase y normalizar las fechas
-  Future<void> _loadEventsFromFirebase() async {
+  Future<void> loadEventsFromFirebase() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('students').get();
 
     Map<DateTime, List<dynamic>> events = {};
@@ -35,7 +43,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       var data = doc.data() as Map<String, dynamic>;
 
       // Asegurarse de que el documento tenga la fecha y sea de una clase muestra
-      if (data['classDate'] != null) {
+      if (data['classDate'] != null)  {
         DateTime eventDate = DateTime.parse(data['classDate']);
         DateTime normalizedDate = _normalizeDate(eventDate); // Normalizar fecha
 

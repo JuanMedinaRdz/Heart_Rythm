@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/data/models/student_model.dart';
 import 'package:hearth_rythm/src/data/repositories/student_repository.dart';
+import 'package:lottie/lottie.dart';
 
 class AddStudentScreen extends StatefulWidget {
   const AddStudentScreen({super.key});
@@ -150,7 +151,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   Widget _buildScheduleButtons() {
     return Row(
-      children: ['Lun/Mie', 'Mar/Jue', 'Sábado'].map((schedule) {
+      children: ['Lun/Mie', 'Mar/Jue', 'Sabado'].map((schedule) {
         return _buildSelectionButton(
           schedule,
           _selectedSchedule == schedule,
@@ -211,6 +212,42 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     );
   }
 
+   void _showSuccessAnimation() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset('lib/src/core/assets/animations/check_succes.json', // Ruta al archivo JSON de Lottie
+                  repeat: false,
+                  width: 150,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Alumno agregado con éxito',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // Cerrar el diálogo y regresar a la pantalla anterior después de 2 segundos
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop(); // Cerrar el diálogo de éxito
+      Navigator.of(context).pop(); // Regresar a la pantalla anterior
+    });
+  }
+
   void _saveStudent() {
     final newStudent = Student(
       name: _nameController.text,
@@ -222,10 +259,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     );
 
     _studentRepo.addStudent(newStudent).then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Alumno agregado con éxito')),
-      );
-      Navigator.pop(context);
+      _showSuccessAnimation();
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al agregar alumno')),

@@ -18,17 +18,17 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           // Blobs decorativos
-          Positioned(
+          const Positioned(
               // Blob izquierdo superior
               top: -80,
               left: -120,
               child: BlobDecoration()),
-          Positioned(
+          const Positioned(
               // Blop Derecho inferior
               bottom: -120,
               right: -120,
               child: BlobDecoration()),
-          Positioned(
+          const Positioned(
               // Blob derecho superior
               top: 80,
               right: -140,
