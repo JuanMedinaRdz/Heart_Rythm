@@ -6,6 +6,7 @@ import 'package:hearth_rythm/src/features/dance_classes/north_screen.dart';
 import 'package:hearth_rythm/src/features/dance_classes/salsa_screen.dart';
 import 'package:hearth_rythm/src/features/home_screen.dart';
 import 'package:hearth_rythm/src/features/students/add_student_screen.dart';
+import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
 
 void main() => runApp(const MainApp());
 
@@ -48,6 +49,13 @@ final GoRouter router = GoRouter(
           name: 'salsa_bachata_screen',
           builder: (context, state) {
             return const SalsaBachataScreen();
+          },
+        ),
+        GoRoute(
+          path: 'student_detail_screen',
+          name: 'student_detail_screen',
+          builder: (context, state) {
+            return const StudentDetailScreen(studentData: {}, name: '', docId: '',);
           },
         ),
       ],

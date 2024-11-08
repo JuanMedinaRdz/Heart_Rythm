@@ -14,6 +14,7 @@ class NavBarNorth extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex, // Actualiza el índice según el estado actual
       selectedItemColor: AppColors.primaryStart,
       unselectedItemColor: AppColors.iconColor,
@@ -31,7 +32,7 @@ class NavBarNorth extends StatelessWidget {
             // Navegar a la pantalla de configuración (si tienes una)
             GoRouter.of(context).go('/north_screen/salsa_bachata_screen');
             break;
-          case 3: // Perfil
+          case 3: // Salsa y Bachata
             // Navegar a la pantalla de perfil (si tienes una)
             GoRouter.of(context).go('/profile_screen');
             break;
@@ -52,15 +53,15 @@ class NavBarNorth extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Image.asset('lib/src/core/assets/images/salsa.png'),
-          label: 'Configuración',
+          label: 'Salsa/Bachata',
         ),
         BottomNavigationBarItem(
           icon: Image.asset('lib/src/core/assets/images/dancing.png'),
-          label: 'Perfil',
+          label: 'Cumbia',
         ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.monetization_on_outlined),
-          label: 'Perfil',
+          label: 'Pagos',
         ),
       ],
     );
