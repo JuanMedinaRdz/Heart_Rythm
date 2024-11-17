@@ -4,7 +4,6 @@ import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/core/constants/text_styles.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_south_screen.dart';
 import 'package:hearth_rythm/src/widgets/north/filter_widget.dart';
-import 'package:hearth_rythm/src/widgets/north/navbar_north_screen.dart';
 import 'package:hearth_rythm/src/widgets/south/navbar_south_screen.dart';
 
 class SalsaBachataSouthScreen extends StatefulWidget {
