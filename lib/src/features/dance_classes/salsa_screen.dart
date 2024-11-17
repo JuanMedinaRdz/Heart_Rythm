@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/core/constants/text_styles.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
+import 'package:hearth_rythm/src/widgets/north/filter_widget.dart';
 import 'package:hearth_rythm/src/widgets/north/navbar_north_screen.dart';
 
 class SalsaBachataScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class SalsaBachataScreen extends StatefulWidget {
 class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
   String searchTerm = "";
   String selectedLevel = "";
+  String selectedSchedule = "";
 
   String _getInitials(String name) {
     List<String> words = name.split(" ");
@@ -27,7 +29,6 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
   }
 
   Future<bool?> _confirmDelete(String name) async {
-    // Confirmación de eliminación
     bool? shouldDelete = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -47,7 +48,6 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
     );
 
     if (shouldDelete == true) {
-      // Si se confirma, eliminar el alumno de Firebase
       var querySnapshot = await FirebaseFirestore.instance
           .collection('students')
           .where('name', isEqualTo: name)
@@ -86,7 +86,31 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: filterRowCategories(),
+            child: FilterWidget(
+              title: "Filtrar por Nivel",
+              field: "level",
+              options: ["Básico", "Intermedio", "Clase Muestra"],
+              selectedValue: selectedLevel,
+              onSelected: (value) {
+                setState(() {
+                  selectedLevel = value;
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: FilterWidget(
+              title: "Filtrar por Día",
+              field: "schedule",
+              options: ["Lun/Mie", "Mar/Jue", "Sabado"],
+              selectedValue: selectedSchedule,
+              onSelected: (value) {
+                setState(() {
+                  selectedSchedule = value;
+                });
+              },
+            ),
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -111,7 +135,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                 if (searchTerm.isNotEmpty) {
                   students = students.where((student) {
                     String schedule =
-                        student['schedule']?.toString().toLowerCase() ?? '';
+                        student['name']?.toString().toLowerCase() ?? '';
                     return schedule.contains(searchTerm);
                   }).toList();
                 }
@@ -120,6 +144,12 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                   students = students.where((student) {
                     String level = student['level']?.toString() ?? '';
                     return level == selectedLevel;
+                  }).toList();
+                }
+                if (selectedSchedule.isNotEmpty) {
+                  students = students.where((student) {
+                    String schedule = student['schedule']?.toString() ?? '';
+                    return schedule == selectedSchedule;
                   }).toList();
                 }
 
@@ -186,13 +216,16 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text("Teléfono: $phone",
-                                      style: AppTextStyles.studentTextContainer),
+                                      style:
+                                          AppTextStyles.studentTextContainer),
                                   const SizedBox(height: 4),
                                   Text("Nivel: $level",
-                                      style: AppTextStyles.studentTextContainer),
+                                      style:
+                                          AppTextStyles.studentTextContainer),
                                   const SizedBox(height: 4),
                                   Text("Día: $schedule",
-                                      style: AppTextStyles.studentTextContainer),
+                                      style:
+                                          AppTextStyles.studentTextContainer),
                                 ],
                               ),
                             ],
@@ -207,49 +240,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
           ),
         ],
       ),
-    bottomNavigationBar: const NavBarNorth(currentIndex: 2,),
-    );
-  }
-
-  SingleChildScrollView filterRowCategories() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const Text("Filtrar por Nivel: "),
-          Radio<String>(
-            value: "Básico",
-            groupValue: selectedLevel,
-            onChanged: (value) {
-              setState(() {
-                selectedLevel = value ?? "";
-              });
-            },
-          ),
-          const Text("Básico"),
-          Radio<String>(
-            value: "Intermedio",
-            groupValue: selectedLevel,
-            onChanged: (value) {
-              setState(() {
-                selectedLevel = value ?? "";
-              });
-            },
-          ),
-          const Text("Intermedio"),
-          Radio<String>(
-            value: "Clase Muestra",
-            groupValue: selectedLevel,
-            onChanged: (value) {
-              setState(() {
-                selectedLevel = value ?? "";
-              });
-            },
-          ),
-          const Text("Clase Muestra"),
-        ],
-      ),
+      bottomNavigationBar: const NavBarNorth(currentIndex: 2),
     );
   }
 

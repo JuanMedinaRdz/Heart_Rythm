@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hearth_rythm/src/widgets/gradient_container_button.dart';
+import 'package:hearth_rythm/src/widgets/gradient_container_button_south.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class CarouselButtonsNorth extends StatefulWidget {
-  const CarouselButtonsNorth({super.key});
+class CarouselButtonsSouth extends StatefulWidget {
+  const CarouselButtonsSouth({super.key});
 
   @override
-  _CarouselButtonsNorthState createState() => _CarouselButtonsNorthState();
+  _CarouselButtonsSouthState createState() => _CarouselButtonsSouthState();
 }
 
-class _CarouselButtonsNorthState extends State<CarouselButtonsNorth> {
+class _CarouselButtonsSouthState extends State<CarouselButtonsSouth> {
   final PageController _pageController = PageController();
 
   @override
@@ -32,11 +32,11 @@ class _CarouselButtonsNorthState extends State<CarouselButtonsNorth> {
               Center(
                 child: SizedBox(
                   width: 300, // Establece el ancho deseado
-                  child: GradientContainerButton(
+                  child: GradientContainerButtonSouth(
                     text: "Añadir alumno",
                     onPressed: () {
                       GoRouter.of(context)
-                          .push('/north_screen/add_student_screen');
+                          .push('/south_screen/add_student_south_screen');
                     },
                     textSize: 20,
                     icon: const Icon(Icons.group_add_outlined),
@@ -46,11 +46,11 @@ class _CarouselButtonsNorthState extends State<CarouselButtonsNorth> {
               Center(
                 child: SizedBox(
                   width: 300,
-                  child: GradientContainerButton(
+                  child: GradientContainerButtonSouth(
                     text: "Tomar asistencia",
                     onPressed: () {
                       GoRouter.of(context)
-                          .push('/north_screen/check_list');
+                          .push('/south_screen/check_list');
                     },
                     textSize: 20,
                     icon: const Icon(Icons.check_box_outlined),

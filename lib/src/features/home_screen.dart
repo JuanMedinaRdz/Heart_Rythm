@@ -66,9 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   // Segundo Boton
                   GradientButton(
-                      text: 'Sucursal Norte',
+                      text: 'Sucursal Sur',
                       onPressed: () {
-                        // Navegación con go router o context.go
+                        GoRouter.of(context).push('/south_screen');
                       }),
 
                   const SizedBox(

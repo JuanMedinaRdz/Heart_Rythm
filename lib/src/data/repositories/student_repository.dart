@@ -8,3 +8,11 @@ class StudentRepository {
     return studentCollection.add(student.toMap());
   }
 }
+
+class StudentSouthRepository {
+  final CollectionReference studentCollection = FirebaseFirestore.instance.collection('studentsSouth');
+
+  Future<void> addStudent(Student student) {
+    return studentCollection.add(student.toMap());
+  }
+}

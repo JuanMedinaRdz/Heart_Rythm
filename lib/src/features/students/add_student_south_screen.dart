@@ -4,14 +4,14 @@ import 'package:hearth_rythm/src/data/models/student_model.dart';
 import 'package:hearth_rythm/src/data/repositories/student_repository.dart';
 import 'package:lottie/lottie.dart';
 
-class AddStudentScreen extends StatefulWidget {
-  const AddStudentScreen({super.key});
+class AddStudentScreenSouth extends StatefulWidget {
+  const AddStudentScreenSouth({super.key});
 
   @override
-  _AddStudentScreenState createState() => _AddStudentScreenState();
+  _AddStudentScreenSouthState createState() => _AddStudentScreenSouthState();
 }
 
-class _AddStudentScreenState extends State<AddStudentScreen> {
+class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -21,7 +21,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   String _selectedLevel = '';
   DateTime? _classDate;
 
-  final _studentRepo = StudentRepository();
+  final _studentRepo = StudentSouthRepository();
 
   @override
   void dispose() {
@@ -60,7 +60,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                   child: Container(
                     height: 50,
                     decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradientButton,
+                        gradient: AppColors.secondGradientButton,
                         borderRadius: BorderRadius.circular(16.0)),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -104,7 +104,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         fillColor: Colors.transparent,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: AppColors.primaryStart),
+          borderSide: const BorderSide(color: AppColors.secondStart),
         ),
       ),
       validator: (value) {
@@ -129,7 +129,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         fillColor: Colors.transparent,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: AppColors.primaryStart),
+          borderSide: const BorderSide(color: AppColors.secondStart),
         ),
       ),
       validator: (value) {
@@ -201,8 +201,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor:
-              isSelected ? AppColors.primaryEnd : Colors.transparent,
-          side: const BorderSide(color: AppColors.primaryStart),
+              isSelected ? AppColors.secondEnd : Colors.transparent,
+          side: const BorderSide(color: AppColors.secondStart),
         ),
         child: Text(text),
       ),

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 
-class NavBarNorth extends StatelessWidget {
+class NavBarSouth extends StatelessWidget {
   final int
       currentIndex; // Agregamos currentIndex para gestionar el estado de la selección
 
-  const NavBarNorth({
+  const NavBarSouth({
     super.key,
     required this.currentIndex, // Recibe el currentIndex como parámetro
   });
@@ -16,30 +16,23 @@ class NavBarNorth extends StatelessWidget {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex, // Actualiza el índice según el estado actual
-      selectedItemColor: AppColors.primaryStart,
+      selectedItemColor: AppColors.southGamma,
       unselectedItemColor: AppColors.iconColor,
       onTap: (index) {
         switch (index) {
           case 0: // Inicio
             GoRouter.of(context)
-                .go('/north_screen'); // Navegar a la pantalla de inicio
+                .go('/south_screen'); // Navegar a la pantalla de inicio
             break;
           case 1: // Eventos
             GoRouter.of(context)
-                .go('/north_screen/events_screen'); // Navegar a la pantalla de eventos
+                .go('/south_screen/salsa_south_screen'); // Navegar a la pantalla de eventos
             break;
           case 2: // Configuración
             // Navegar a la pantalla de configuración (si tienes una)
-            GoRouter.of(context).go('/north_screen/salsa_bachata_screen');
+            GoRouter.of(context).go('/south_screen/salsa_bachata_screen');
             break;
-          case 3: // Salsa y Bachata
-            // Navegar a la pantalla de perfil (si tienes una)
-            GoRouter.of(context).go('/north_screen/cumbia_screen');
-            break;
-          case 4: // Perfil
-            // Navegar a la pantalla de perfil (si tienes una)
-            GoRouter.of(context).go('/pagos_screen');
-            break;
+
         }
       },
       items: [
@@ -47,21 +40,13 @@ class NavBarNorth extends StatelessWidget {
           icon: Icon(Icons.home),
           label: 'Inicio',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.event),
-          label: 'Eventos',
-        ),
-        BottomNavigationBarItem(
+  BottomNavigationBarItem(
           icon: Image.asset('lib/src/core/assets/images/salsa.png'),
           label: 'Salsa/Bachata',
         ),
-        BottomNavigationBarItem(
+       BottomNavigationBarItem(
           icon: Image.asset('lib/src/core/assets/images/dancing.png'),
           label: 'Cumbia',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.monetization_on_outlined),
-          label: 'Pagos',
         ),
       ],
     );

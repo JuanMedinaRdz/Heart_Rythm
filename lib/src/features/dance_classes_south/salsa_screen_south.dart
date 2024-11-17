@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/core/constants/text_styles.dart';
-import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
+import 'package:hearth_rythm/src/features/students/student_detail_south_screen.dart';
 import 'package:hearth_rythm/src/widgets/north/filter_widget.dart';
 import 'package:hearth_rythm/src/widgets/north/navbar_north_screen.dart';
+import 'package:hearth_rythm/src/widgets/south/navbar_south_screen.dart';
 
-class CumbiaScreen extends StatefulWidget {
-  const CumbiaScreen({super.key});
+class SalsaBachataSouthScreen extends StatefulWidget {
+  const SalsaBachataSouthScreen({super.key});
 
   @override
-  _CumbiaScreenState createState() => _CumbiaScreenState();
+  _SalsaBachataSouthScreenState createState() => _SalsaBachataSouthScreenState();
 }
 
-class _CumbiaScreenState extends State<CumbiaScreen> {
+class _SalsaBachataSouthScreenState extends State<SalsaBachataSouthScreen> {
   String searchTerm = "";
   String selectedLevel = "";
   String selectedSchedule = "";
@@ -49,7 +50,7 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
 
     if (shouldDelete == true) {
       var querySnapshot = await FirebaseFirestore.instance
-          .collection('students')
+          .collection('studentsSouth')
           .where('name', isEqualTo: name)
           .get();
       if (querySnapshot.docs.isNotEmpty) {
@@ -66,7 +67,7 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Alumnos de Cumbia"),
+        title: const Text("Alumnos de Salsa"),
       ),
       body: Column(
         children: [
@@ -115,8 +116,8 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('students')
-                  .where('danceStyle', isEqualTo: 'Cumbia')
+                  .collection('studentsSouth')
+                  .where('danceStyle', isEqualTo: 'Salsa')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -125,15 +126,15 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
-                      child: Text("No hay alumnos registrados en Cumbia"));
+                      child: Text("No hay alumnos registrados en Salsa"));
                 }
 
-                var students = snapshot.data!.docs
+                var studentsSouth = snapshot.data!.docs
                     .map((doc) => doc.data() as Map<String, dynamic>)
                     .toList();
 
                 if (searchTerm.isNotEmpty) {
-                  students = students.where((student) {
+                  studentsSouth = studentsSouth.where((student) {
                     String schedule =
                         student['name']?.toString().toLowerCase() ?? '';
                     return schedule.contains(searchTerm);
@@ -141,22 +142,22 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
                 }
 
                 if (selectedLevel.isNotEmpty) {
-                  students = students.where((student) {
+                  studentsSouth = studentsSouth.where((student) {
                     String level = student['level']?.toString() ?? '';
                     return level == selectedLevel;
                   }).toList();
                 }
                 if (selectedSchedule.isNotEmpty) {
-                  students = students.where((student) {
+                  studentsSouth = studentsSouth.where((student) {
                     String schedule = student['schedule']?.toString() ?? '';
                     return schedule == selectedSchedule;
                   }).toList();
                 }
 
                 return ListView.builder(
-                  itemCount: students.length,
+                  itemCount: studentsSouth.length,
                   itemBuilder: (context, index) {
-                    var data = students[index];
+                    var data = studentsSouth[index];
                     String name = data['name'] ?? 'Sin Nombre';
                     String phone = data['phone'] ?? 'Sin Teléfono';
                     String level = data['level'] ?? 'Sin Nivel';
@@ -177,7 +178,7 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
                         child: const Icon(Icons.delete, color: Colors.white),
                       ),
                       child: GestureDetector(
-                        onTap: () => openStudentDetail(context, name),
+                        onTap: () => openStudentSouthDetail(context, name),
                         child: Container(
                           margin: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 16),
@@ -198,7 +199,7 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
                             children: [
                               CircleAvatar(
                                 radius: 25,
-                                backgroundColor: AppColors.primaryStart,
+                                backgroundColor: AppColors.secondStart,
                                 child: Text(
                                   initials,
                                   style: const TextStyle(
@@ -240,13 +241,13 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const NavBarNorth(currentIndex: 3),
+      bottomNavigationBar: const NavBarSouth(currentIndex: 1),
     );
   }
 
-  void openStudentDetail(BuildContext context, String name) {
+  void openStudentSouthDetail(BuildContext context, String name) {
     FirebaseFirestore.instance
-        .collection('students')
+        .collection('studentsSouth')
         .where('name', isEqualTo: name)
         .get()
         .then((querySnapshot) {
@@ -255,7 +256,7 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
         var studentData = doc.data();
         showModalBottomSheet(
           context: context,
-          builder: (_) => StudentDetailScreen(
+          builder: (_) => StudentDetailSouthScreen(
             studentData: studentData,
             name: name,
             docId: doc.id,
