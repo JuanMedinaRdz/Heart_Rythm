@@ -5,14 +5,16 @@ import 'package:hearth_rythm/src/features/dance_classes/cumbia_screen.dart';
 import 'package:hearth_rythm/src/features/dance_classes/events_screen.dart';
 import 'package:hearth_rythm/src/features/dance_classes/north_screen.dart';
 import 'package:hearth_rythm/src/features/dance_classes/salsa_screen.dart';
-import 'package:hearth_rythm/src/features/dance_classes_south/salsa_screen_south.dart';
+import 'package:hearth_rythm/src/features/dance_classes_south/alumnos_list_screen.dart';
 import 'package:hearth_rythm/src/features/dance_classes_south/south_screen.dart';
 import 'package:hearth_rythm/src/features/home_screen.dart';
 import 'package:hearth_rythm/src/features/students/add_student_screen.dart';
 import 'package:hearth_rythm/src/features/students/add_student_south_screen.dart';
-import 'package:hearth_rythm/src/features/students/check_list_screen.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_south_screen.dart';
+import 'package:hearth_rythm/src/widgets/north/mensualidades.dart';
+import 'package:hearth_rythm/src/widgets/notas.dart';
+import 'package:hearth_rythm/src/widgets/south/mensualidades_south.dart';
 
 void main() => runApp(const MainApp());
 
@@ -43,13 +45,14 @@ final GoRouter router = GoRouter(
             return const AddStudentScreen();
           },
         ),
-        GoRoute(
-          path: 'check_list',
-          name: 'check_list',
+                GoRoute(
+          path: 'notas_screen',
+          name: 'notas_screen',
           builder: (context, state) {
-            return const CheckListScreen();
+            return const NotasScreen();
           },
         ),
+
         GoRoute(
           path: 'events_screen',
           name: 'events_screen',
@@ -72,6 +75,13 @@ final GoRouter router = GoRouter(
           },
         ),
         GoRoute(
+          path: 'pagos_screen',
+          name: 'pagos_screen',
+          builder: (context, state) {
+            return const MensualidadScreen();
+          },
+        ),
+        GoRoute(
           path: 'student_detail_screen',
           name: 'student_detail_screen',
           builder: (context, state) {
@@ -85,7 +95,7 @@ final GoRouter router = GoRouter(
       ],
     ),
     // Clase padre de SouthScreen para anidamiento de otras clases.
-        GoRoute(
+    GoRoute(
       path: '/south_screen',
       name: 'south_screen',
       builder: (context, state) {
@@ -100,10 +110,17 @@ final GoRouter router = GoRouter(
           },
         ),
                 GoRoute(
+          path: 'mensualidades_south_screen',
+          name: 'mensualidades_south_screen',
+          builder: (context, state) {
+            return const MensualidadesSouthScreen();
+          },
+        ),
+        GoRoute(
           path: 'salsa_south_screen',
           name: 'salsa_south_screen',
           builder: (context, state) {
-            return const SalsaBachataSouthScreen();
+            return const AlumnosListScreen();
           },
         ),
         GoRoute(

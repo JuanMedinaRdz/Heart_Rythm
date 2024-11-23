@@ -24,22 +24,15 @@ class NavBarNorth extends StatelessWidget {
             GoRouter.of(context)
                 .go('/north_screen'); // Navegar a la pantalla de inicio
             break;
-          case 1: // Eventos
-            GoRouter.of(context)
-                .go('/north_screen/events_screen'); // Navegar a la pantalla de eventos
-            break;
-          case 2: // Configuración
+          case 1: // Configuración
             // Navegar a la pantalla de configuración (si tienes una)
-            GoRouter.of(context).go('/north_screen/salsa_bachata_screen');
+            GoRouter.of(context).push('/north_screen/salsa_bachata_screen');
             break;
-          case 3: // Salsa y Bachata
+          case 2: // Salsa y Bachata
             // Navegar a la pantalla de perfil (si tienes una)
             GoRouter.of(context).go('/north_screen/cumbia_screen');
             break;
-          case 4: // Perfil
-            // Navegar a la pantalla de perfil (si tienes una)
-            GoRouter.of(context).go('/pagos_screen');
-            break;
+
         }
       },
       items: [
@@ -47,10 +40,7 @@ class NavBarNorth extends StatelessWidget {
           icon: Icon(Icons.home),
           label: 'Inicio',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.event),
-          label: 'Eventos',
-        ),
+
         BottomNavigationBarItem(
           icon: Image.asset('lib/src/core/assets/images/salsa.png'),
           label: 'Salsa/Bachata',
@@ -59,10 +49,7 @@ class NavBarNorth extends StatelessWidget {
           icon: Image.asset('lib/src/core/assets/images/dancing.png'),
           label: 'Cumbia',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.monetization_on_outlined),
-          label: 'Pagos',
-        ),
+
       ],
     );
   }

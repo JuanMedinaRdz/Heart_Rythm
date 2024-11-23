@@ -28,10 +28,6 @@ class NavBarSouth extends StatelessWidget {
             GoRouter.of(context)
                 .go('/south_screen/salsa_south_screen'); // Navegar a la pantalla de eventos
             break;
-          case 2: // Configuración
-            // Navegar a la pantalla de configuración (si tienes una)
-            GoRouter.of(context).go('/south_screen/salsa_bachata_screen');
-            break;
 
         }
       },
@@ -41,13 +37,10 @@ class NavBarSouth extends StatelessWidget {
           label: 'Inicio',
         ),
   BottomNavigationBarItem(
-          icon: Image.asset('lib/src/core/assets/images/salsa.png'),
-          label: 'Salsa/Bachata',
+          icon: Icon(Icons.person_search_sharp),
+          label: 'Alumnos',
         ),
-       BottomNavigationBarItem(
-          icon: Image.asset('lib/src/core/assets/images/dancing.png'),
-          label: 'Cumbia',
-        ),
+
       ],
     );
   }

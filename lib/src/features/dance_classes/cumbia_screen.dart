@@ -240,7 +240,7 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const NavBarNorth(currentIndex: 3),
+      bottomNavigationBar: const NavBarNorth(currentIndex: 2),
     );
   }
 

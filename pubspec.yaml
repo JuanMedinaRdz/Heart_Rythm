@@ -9,6 +9,7 @@ environment:
 dependencies:
   cloud_firestore: ^5.4.4
   firebase_core: ^3.6.0
+  fl_chart: ^0.69.2
   flutter:
     sdk: flutter
   flutter_blob: ^0.0.1

@@ -146,7 +146,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                     return level == selectedLevel;
                   }).toList();
                 }
-                if (selectedSchedule.isNotEmpty) {
+                if (selectedSchedule.isNotEmpty ) {
                   students = students.where((student) {
                     String schedule = student['schedule']?.toString() ?? '';
                     return schedule == selectedSchedule;
@@ -240,7 +240,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const NavBarNorth(currentIndex: 2),
+      bottomNavigationBar: const NavBarNorth(currentIndex: 1),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/data/models/student_model.dart';
 import 'package:hearth_rythm/src/data/repositories/student_repository.dart';
@@ -264,7 +265,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     // Cerrar el diálogo y regresar a la pantalla anterior después de 2 segundos
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop(); // Cerrar el diálogo de éxito
-      Navigator.of(context).pop(); // Regresar a la pantalla anterior
+       GoRouter.of(context).push('/north_screen');// Regresar a la pantalla anterior
     });
   }
 

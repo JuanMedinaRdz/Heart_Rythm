@@ -6,14 +6,14 @@ import 'package:hearth_rythm/src/features/students/student_detail_south_screen.d
 import 'package:hearth_rythm/src/widgets/north/filter_widget.dart';
 import 'package:hearth_rythm/src/widgets/south/navbar_south_screen.dart';
 
-class SalsaBachataSouthScreen extends StatefulWidget {
-  const SalsaBachataSouthScreen({super.key});
+class AlumnosListScreen extends StatefulWidget {
+  const AlumnosListScreen({super.key});
 
   @override
-  _SalsaBachataSouthScreenState createState() => _SalsaBachataSouthScreenState();
+  _AlumnosListScreenState createState() => _AlumnosListScreenState();
 }
 
-class _SalsaBachataSouthScreenState extends State<SalsaBachataSouthScreen> {
+class _AlumnosListScreenState extends State<AlumnosListScreen> {
   String searchTerm = "";
   String selectedLevel = "";
   String selectedSchedule = "";
@@ -66,7 +66,7 @@ class _SalsaBachataSouthScreenState extends State<SalsaBachataSouthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Alumnos de Salsa"),
+        title: const Text("Alumnos"),
       ),
       body: Column(
         children: [
@@ -74,7 +74,7 @@ class _SalsaBachataSouthScreenState extends State<SalsaBachataSouthScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Buscar por horario',
+                labelText: 'Buscar por nombre',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -116,7 +116,6 @@ class _SalsaBachataSouthScreenState extends State<SalsaBachataSouthScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('studentsSouth')
-                  .where('danceStyle', isEqualTo: 'Salsa')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -140,7 +139,7 @@ class _SalsaBachataSouthScreenState extends State<SalsaBachataSouthScreen> {
                   }).toList();
                 }
 
-                if (selectedLevel.isNotEmpty) {
+                if (selectedLevel.isNotEmpty ) {
                   studentsSouth = studentsSouth.where((student) {
                     String level = student['level']?.toString() ?? '';
                     return level == selectedLevel;

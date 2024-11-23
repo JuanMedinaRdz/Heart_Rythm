@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/data/models/student_model.dart';
 import 'package:hearth_rythm/src/data/repositories/student_repository.dart';
@@ -16,7 +17,6 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  String _selectedDanceStyle = '';
   String _selectedSchedule = '';
   String _selectedLevel = '';
   DateTime? _classDate;
@@ -47,9 +47,6 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
                 _buildPhoneField(
                     'Ingresa tu número telefónico', _phoneController),
                 const SizedBox(height: 16.0),
-                _buildSectionTitle('Selecciona el estilo de baile'),
-                _buildDanceStyleButtons(),
-                const SizedBox(height: 16.0),
                 _buildSectionTitle('Selecciona el horario'),
                 _buildScheduleButtons(),
                 const SizedBox(height: 16.0),
@@ -70,7 +67,6 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
                               borderRadius: BorderRadius.circular(16.0))),
                       onPressed: () {
                         if (_formKey.currentState!.validate() &&
-                            _selectedDanceStyle.isNotEmpty &&
                             _selectedSchedule.isNotEmpty &&
                             _selectedLevel.isNotEmpty) {
                           _saveStudent();
@@ -150,18 +146,6 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
     return Text(
       title,
       style: const TextStyle(fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _buildDanceStyleButtons() {
-    return Row(
-      children: ['Salsa', 'Cumbia'].map((style) {
-        return _buildSelectionButton(
-          style,
-          _selectedDanceStyle == style,
-          () => setState(() => _selectedDanceStyle = style),
-        );
-      }).toList(),
     );
   }
 
@@ -264,7 +248,7 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
     // Cerrar el diálogo y regresar a la pantalla anterior después de 2 segundos
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop(); // Cerrar el diálogo de éxito
-      Navigator.of(context).pop(); // Regresar a la pantalla anterior
+       GoRouter.of(context).push('/south_screen');// Regresar a la pantalla anterior
     });
   }
 
@@ -272,7 +256,6 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
     final newStudent = Student(
       name: _nameController.text,
       phone: _phoneController.text,
-      danceStyle: _selectedDanceStyle,
       schedule: _selectedSchedule,
       level: _selectedLevel,
       classDate: _selectedLevel == 'Clase Muestra' ? _classDate : null,

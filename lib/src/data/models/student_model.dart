@@ -1,7 +1,7 @@
 class Student {
   final String name;
   final String phone;
-  final String danceStyle;
+  final String? danceStyle;
   final String schedule;
   final String level;
   final DateTime? classDate; // Solo si se selecciona clase muestra
@@ -9,7 +9,7 @@ class Student {
   Student({
     required this.name,
     required this.phone,
-    required this.danceStyle,
+     this.danceStyle,
     required this.schedule,
     required this.level,
     this.classDate,

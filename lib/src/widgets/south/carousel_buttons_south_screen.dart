@@ -47,13 +47,13 @@ class _CarouselButtonsSouthState extends State<CarouselButtonsSouth> {
                 child: SizedBox(
                   width: 300,
                   child: GradientContainerButtonSouth(
-                    text: "Tomar asistencia",
+                    text: "Porcentaje por mes",
                     onPressed: () {
                       GoRouter.of(context)
-                          .push('/south_screen/check_list');
+                          .push('/south_screen/mensualidades_south_screen');
                     },
                     textSize: 20,
-                    icon: const Icon(Icons.check_box_outlined),
+                    icon: const Icon(Icons.attach_money_outlined),
                   ),
                 ),
               ),

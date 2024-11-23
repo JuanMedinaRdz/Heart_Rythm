@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 class AppTextStyles {
@@ -15,8 +13,16 @@ class AppTextStyles {
     color: Colors.white,
   );
 
-    static const TextStyle studentTextContainer = TextStyle(
+  static const TextStyle studentTextContainer = TextStyle(
     fontSize: 15,
     color: Colors.black,
+  );
+
+  static const TextStyle notesTitle = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
+  );
+  static const TextStyle notesContent = TextStyle(
+    fontSize: 15,
   );
 }
