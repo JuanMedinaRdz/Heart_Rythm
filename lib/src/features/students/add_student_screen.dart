@@ -178,37 +178,47 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     );
   }
 
-  Widget _buildLevelButtons() {
-    return Column(
-      children: [
-        Row(
-          children: ['Básico', 'Intermedio', 'Clase Muestra'].map((level) {
-            return _buildSelectionButton(
-              level,
-              _selectedLevel == level,
-              () => setState(() => _selectedLevel = level),
+Widget _buildLevelButtons() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: ['Básico', 'Básico Avanzado', 'Intermedio', 'Clase Muestra']
+              .map((level) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0), // Espacio entre botones
+              child: _buildSelectionButton(
+                level,
+                _selectedLevel == level,
+                () => setState(() => _selectedLevel = level),
+              ),
             );
           }).toList(),
         ),
-        if (_selectedLevel == 'Clase Muestra') _buildDatePicker(),
-      ],
-    );
-  }
-
-  Widget _buildSelectionButton(
-      String text, bool isSelected, VoidCallback onPressed) {
-    return Expanded(
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          backgroundColor:
-              isSelected ? AppColors.primaryEnd : Colors.transparent,
-          side: const BorderSide(color: AppColors.primaryStart),
-        ),
-        child: Text(text),
       ),
-    );
-  }
+      if (_selectedLevel == 'Clase Muestra') _buildDatePicker(),
+    ],
+  );
+}
+
+ Widget _buildSelectionButton(
+    String text, bool isSelected, VoidCallback onPressed) {
+  return Padding(
+    padding: const EdgeInsets.only(right: 8.0),
+    child: OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        backgroundColor:
+            isSelected ? AppColors.primaryEnd : Colors.transparent,
+        side: const BorderSide(color: AppColors.primaryStart),
+      ),
+      child: Text(text),
+    ),
+  );
+}
+
 
   Widget _buildDatePicker() {
     return TextButton(

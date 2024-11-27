@@ -1,38 +1,42 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:hearth_rythm/src/core/constants/text_styles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hearth_rythm/src/data/models/note_model.dart';
+import 'package:hearth_rythm/src/features/note_detail_screen.dart';
+import 'package:hearth_rythm/src/widgets/notes_list.dart';
 
 class NotasScreen extends StatefulWidget {
-  const NotasScreen({Key? key}) : super(key: key);
+  const NotasScreen({super.key});
 
   @override
-  _NotasScreenState createState() => _NotasScreenState();
+  State<NotasScreen> createState() => _NotasScreenState();
 }
 
 class _NotasScreenState extends State<NotasScreen> {
+  Note? _selectedNote; // Nota actualmente seleccionada para visualizar o editar
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
-  bool _isCreating = false;
 
-  Future<void> _addNote() async {
-    final title = _titleController.text;
-    final content = _contentController.text;
+  Future<void> _saveNote() async {
+    if (_selectedNote != null) {
+  final updatedNote = _selectedNote!.copyWith(
+  title: _titleController.text,
+  content: _contentController.text,
+  updatedAt: DateTime.now(),
+);
 
-    if (title.isNotEmpty && content.isNotEmpty) {
-      // Guardar la nota en Firebase
-      await FirebaseFirestore.instance.collection('notes').add({
-        'title': title,
-        'content': content,
-        'createdAt': Timestamp.now(),
-      });
 
-      // Limpiar los campos
-      _titleController.clear();
-      _contentController.clear();
+      await FirebaseFirestore.instance
+          .collection('notes')
+          .doc(updatedNote.id)
+          .update(updatedNote.toMap());
 
-      // Cerrar la sección de agregar nota
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nota actualizada')),
+      );
+
       setState(() {
-        _isCreating = false;
+        _selectedNote = null; // Oculta la vista de edición
       });
     }
   }
@@ -42,153 +46,52 @@ class _NotasScreenState extends State<NotasScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Notas"),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('notes')
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text("No hay notas."));
-                }
-
-                var notes = snapshot.data!.docs.map((doc) {
-                  var data = doc.data() as Map<String, dynamic>;
-                  return {
-                    'id': doc.id,
-                    'title': data['title'],
-                    'content': data['content'],
-                  };
-                }).toList();
-
-                return ListView.builder(
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    var note = notes[index];
-                    return GestureDetector(
-                      onTap: () {
-                        // Navegar a la pantalla de detalle de la nota
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NotaDetalleScreen(noteId: note['id']),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        child: ListTile(
-                          title: Text(note['title']),
-                          subtitle: Text(
-                            note['content'],
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category),
+            onPressed: () {
+              // Navegación a la pantalla de gestión de categorías
+              context.go('/north_screen/notas_screen/category-manager');
+            },
           ),
-          if (_isCreating) ...[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Título',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _contentController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Contenido',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  onPressed: _addNote,
-                  child: const Icon(Icons.check),
-                ),
-              ],
-            ),
-          ]
         ],
       ),
-      floatingActionButton: !_isCreating
-          ? FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  _isCreating = true;
-                });
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
-    );
-  }
-}
-
-class NotaDetalleScreen extends StatelessWidget {
-  final String noteId;
-
-  const NotaDetalleScreen({Key? key, required this.noteId}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Detalle de Nota")),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance.collection('notes').doc(noteId).get(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('notes')
+            .orderBy('createdAt', descending: true)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text("Nota no encontrada."));
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("No hay notas registradas"));
           }
 
-          var noteData = snapshot.data!.data() as Map<String, dynamic>;
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  noteData['title'],
-                  style: AppTextStyles.notesTitle,
+          final notes = snapshot.data!.docs.map((doc) {
+            return Note.fromDocument(doc.data() as Map<String, dynamic>, doc.id);
+          }).toList();
+
+          return NotesList(
+            notes: notes,
+            onNoteSelected: (note) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NoteDetailScreen(note: note),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  noteData['content'],
-                  style: AppTextStyles.notesContent,
-                ),
-              ],
-            ),
+              );
+            },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+                        context.go('/north_screen/notas_screen/note-form');
+
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

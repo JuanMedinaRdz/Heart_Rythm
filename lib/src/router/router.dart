@@ -12,8 +12,10 @@ import 'package:hearth_rythm/src/features/students/add_student_screen.dart';
 import 'package:hearth_rythm/src/features/students/add_student_south_screen.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_south_screen.dart';
+import 'package:hearth_rythm/src/widgets/category_manager_screen.dart';
 import 'package:hearth_rythm/src/widgets/north/mensualidades.dart';
 import 'package:hearth_rythm/src/widgets/notas.dart';
+import 'package:hearth_rythm/src/widgets/note_form.dart';
 import 'package:hearth_rythm/src/widgets/south/mensualidades_south.dart';
 
 void main() => runApp(const MainApp());
@@ -33,9 +35,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/north_screen',
       name: 'north_screen',
-      builder: (context, state) {
-        return const NorthScreen();
-      },
+      builder: (context, state) => const NorthScreen(),
       //Ruta anidada para detalles de North_Screen
       routes: [
         GoRoute(
@@ -45,14 +45,26 @@ final GoRouter router = GoRouter(
             return const AddStudentScreen();
           },
         ),
-                GoRoute(
-          path: 'notas_screen',
-          name: 'notas_screen',
-          builder: (context, state) {
-            return const NotasScreen();
-          },
-        ),
-
+        GoRoute(
+            path: 'notas_screen',
+            name: 'notas_screen',
+            builder: (context, state) => const NotasScreen(),
+            routes: [
+              GoRoute(
+                path: 'category-manager',
+                name: 'category-manager',
+                builder: (context, state) {
+                  return const CategoryManagerScreen();
+                },
+              ),
+              GoRoute(
+                path: 'note-form',
+                name: 'note-form',
+                builder: (context, state) {
+                  return const NoteForm();
+                },
+              ),
+            ]),
         GoRoute(
           path: 'events_screen',
           name: 'events_screen',
@@ -109,7 +121,7 @@ final GoRouter router = GoRouter(
             return const AddStudentScreenSouth();
           },
         ),
-                GoRoute(
+        GoRoute(
           path: 'mensualidades_south_screen',
           name: 'mensualidades_south_screen',
           builder: (context, state) {

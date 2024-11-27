@@ -163,35 +163,43 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
 
   Widget _buildLevelButtons() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: ['Básico', 'Intermedio', 'Clase Muestra'].map((level) {
-            return _buildSelectionButton(
-              level,
-              _selectedLevel == level,
-              () => setState(() => _selectedLevel = level),
-            );
-          }).toList(),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: ['Básico','Básico Avanzado', 'Intermedio', 'Clase Muestra'].map((level) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildSelectionButton(
+                  level,
+                  _selectedLevel == level,
+                  () => setState(() => _selectedLevel = level),
+                ),
+              );
+            }).toList(),
+          ),
         ),
         if (_selectedLevel == 'Clase Muestra') _buildDatePicker(),
       ],
     );
   }
 
-  Widget _buildSelectionButton(
-      String text, bool isSelected, VoidCallback onPressed) {
-    return Expanded(
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          backgroundColor:
-              isSelected ? AppColors.secondEnd : Colors.transparent,
-          side: const BorderSide(color: AppColors.secondStart),
-        ),
-        child: Text(text),
+ Widget _buildSelectionButton(
+    String text, bool isSelected, VoidCallback onPressed) {
+  return Padding(
+    padding: const EdgeInsets.only(right: 8.0),
+    child: OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        backgroundColor:
+            isSelected ? AppColors.primaryEnd : Colors.transparent,
+        side: const BorderSide(color: AppColors.secondStart),
       ),
-    );
-  }
+      child: Text(text),
+    ),
+  );
+}
 
   Widget _buildDatePicker() {
     return TextButton(

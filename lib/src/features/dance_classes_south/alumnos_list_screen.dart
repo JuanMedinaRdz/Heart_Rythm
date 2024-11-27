@@ -89,7 +89,7 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
             child: FilterWidget(
               title: "Filtrar por Nivel",
               field: "level",
-              options: ["Básico", "Intermedio", "Clase Muestra"],
+              options: ["Básico","Básico Avanzado", "Intermedio", "Clase Muestra"],
               selectedValue: selectedLevel,
               onSelected: (value) {
                 setState(() {
@@ -164,7 +164,7 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
 
                     return Dismissible(
                       key: Key(name),
-                      direction: DismissDirection.startToEnd,
+                      direction: DismissDirection.endToStart,
                       onDismissed: (_) => _confirmDelete(name),
                       confirmDismiss: (direction) async {
                         return await _confirmDelete(name);

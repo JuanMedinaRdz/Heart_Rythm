@@ -43,6 +43,20 @@ class _CarouselButtonsSouthState extends State<CarouselButtonsSouth> {
                   ),
                 ),
               ),
+                Center(
+                child: SizedBox(
+                  width: 300,
+                  child: GradientContainerButtonSouth(
+                    text: "Notas",
+                    onPressed: () {
+                      GoRouter.of(context)
+                          .push('/north_screen/notas_screen');
+                    },
+                    textSize: 25,
+                    icon: const Icon(Icons.edit_note_rounded),
+                  ),
+                ),
+              ),
               Center(
                 child: SizedBox(
                   width: 300,
@@ -62,7 +76,7 @@ class _CarouselButtonsSouthState extends State<CarouselButtonsSouth> {
         ),
         SmoothPageIndicator(
           controller: _pageController,
-          count: 2,
+          count: 3,
           effect: ExpandingDotsEffect(
             dotHeight: 8,
             dotWidth: 8,
