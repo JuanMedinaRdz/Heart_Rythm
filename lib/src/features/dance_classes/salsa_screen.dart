@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/core/constants/text_styles.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
-import 'package:hearth_rythm/src/widgets/north/filter_widget.dart';
 import 'package:hearth_rythm/src/widgets/north/navbar_north_screen.dart';
 
 class SalsaBachataScreen extends StatefulWidget {
@@ -17,6 +16,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
   String searchTerm = "";
   String selectedLevel = "";
   String selectedSchedule = "";
+  String selectedTeacher = "";
 
   String _getInitials(String name) {
     List<String> words = name.split(" ");
@@ -62,11 +62,102 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
     return null;
   }
 
+  void _clearFilters() {
+    setState(() {
+      selectedLevel = "";
+      selectedSchedule = "";
+      selectedTeacher = "";
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Alumnos de Salsa"),
+        actions: [
+          Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.filter_list),
+                onPressed: () {
+                  Scaffold.of(context)
+                      .openEndDrawer(); 
+                },
+              );
+            },
+          ),
+        ],
+      ),
+      endDrawer: Drawer(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Filtrar por Nivel",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                ...["Básico", "Básico Avanzado", "Intermedio", "Clase Muestra"]
+                    .map((option) => RadioListTile<String>(
+                          title: Text(option),
+                          value: option,
+                          groupValue: selectedLevel,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedLevel = value ?? "";
+                            });
+                            Navigator.pop(context);
+                          },
+                        ))
+                    .toList(),
+                const SizedBox(height: 16),
+                const Text("Filtrar por Día",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                ...["Lun/Mie", "Mar/Jue", "Sabado"]
+                    .map((option) => RadioListTile<String>(
+                          title: Text(option),
+                          value: option,
+                          groupValue: selectedSchedule,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedSchedule = value ?? "";
+                            });
+                            Navigator.pop(context); 
+                          },
+                        ))
+                    .toList(),
+                const SizedBox(height: 16),
+                const Text("Filtrar por Maestro",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                ...["Desi", "Nico", "Juan", "Ximena","Monse"]
+                    .map((option) => RadioListTile<String>(
+                          title: Text(option),
+                          value: option,
+                          groupValue: selectedTeacher,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedTeacher = value ?? "";
+                            });
+                            Navigator.pop(context);
+                          },
+                        ))
+                    .toList(),
+                const Spacer(),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _clearFilters();
+                    Navigator.pop(context); 
+                  },
+                  icon: const Icon(Icons.clear),
+                  label: const Text("Limpiar Filtros"),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -74,40 +165,12 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Buscar por horario',
+                labelText: 'Buscar por nombre',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
                 setState(() {
                   searchTerm = value.toLowerCase();
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FilterWidget(
-              title: "Filtrar por Nivel",
-              field: "level",
-              options: ["Básico","Básico Avanzado", "Intermedio", "Clase Muestra"],
-              selectedValue: selectedLevel,
-              onSelected: (value) {
-                setState(() {
-                  selectedLevel = value;
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FilterWidget(
-              title: "Filtrar por Día",
-              field: "schedule",
-              options: ["Lun/Mie", "Mar/Jue", "Sabado"],
-              selectedValue: selectedSchedule,
-              onSelected: (value) {
-                setState(() {
-                  selectedSchedule = value;
                 });
               },
             ),
@@ -134,9 +197,9 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
 
                 if (searchTerm.isNotEmpty) {
                   students = students.where((student) {
-                    String schedule =
+                    String name =
                         student['name']?.toString().toLowerCase() ?? '';
-                    return schedule.contains(searchTerm);
+                    return name.contains(searchTerm);
                   }).toList();
                 }
 
@@ -146,10 +209,18 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                     return level == selectedLevel;
                   }).toList();
                 }
-                if (selectedSchedule.isNotEmpty ) {
+
+                if (selectedSchedule.isNotEmpty) {
                   students = students.where((student) {
                     String schedule = student['schedule']?.toString() ?? '';
                     return schedule == selectedSchedule;
+                  }).toList();
+                }
+                
+                if (selectedTeacher.isNotEmpty) {
+                  students = students.where((student) {
+                    String teacher = student['teacher']?.toString() ?? '';
+                    return teacher == selectedTeacher;
                   }).toList();
                 }
 
@@ -160,6 +231,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                     String name = data['name'] ?? 'Sin Nombre';
                     String phone = data['phone'] ?? 'Sin Teléfono';
                     String level = data['level'] ?? 'Sin Nivel';
+                    String teacher = data['teacher'] ?? 'Maestro desconocido';
                     String schedule = data['schedule'] ?? 'Sin Horario';
                     String initials = _getInitials(name);
 
@@ -220,6 +292,10 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                                           AppTextStyles.studentTextContainer),
                                   const SizedBox(height: 4),
                                   Text("Nivel: $level",
+                                      style:
+                                          AppTextStyles.studentTextContainer),
+                                  const SizedBox(height: 4),
+                                  Text("Maestro: $teacher",
                                       style:
                                           AppTextStyles.studentTextContainer),
                                   const SizedBox(height: 4),

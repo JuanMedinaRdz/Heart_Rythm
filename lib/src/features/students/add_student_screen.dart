@@ -3,7 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/data/models/student_model.dart';
 import 'package:hearth_rythm/src/data/repositories/student_repository.dart';
-import 'package:lottie/lottie.dart';
+import 'package:hearth_rythm/src/widgets/north/custom_text_field.dart';
+import 'package:hearth_rythm/src/widgets/north/date_picker_widget.dart';
+import 'package:hearth_rythm/src/widgets/north/phone_text_field.dart';
+import 'package:hearth_rythm/src/widgets/north/section_title.dart';
+import 'package:hearth_rythm/src/widgets/north/selection_button_group.dart';
+import 'package:hearth_rythm/src/widgets/north/succes_animation_dialog.dart';
 
 class AddStudentScreen extends StatefulWidget {
   const AddStudentScreen({super.key});
@@ -20,6 +25,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   String _selectedDanceStyle = '';
   String _selectedSchedule = '';
   String _selectedLevel = '';
+  String _selectedTeacher = '';
   DateTime? _classDate;
 
   final _studentRepo = StudentRepository();
@@ -29,6 +35,43 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+void _saveStudent() {
+  final newStudent = Student(
+    name: _nameController.text,
+    phone: _phoneController.text,
+    danceStyle: _selectedDanceStyle,
+    schedule: _selectedSchedule,
+    level: _selectedLevel,
+    teacher: _selectedTeacher,
+    classDate: _selectedLevel == 'Clase Muestra' ? _classDate : null,
+  );
+
+  _studentRepo.addStudent(newStudent).then((_) {
+    _showSuccessAnimation();
+  }).catchError((error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Error al agregar alumno')),
+    );
+  });
+}
+
+ void _showSuccessAnimation() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return SuccessAnimationDialog(
+        message: 'Alumno agregado con éxito',
+      );
+    },
+  );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop(); 
+      GoRouter.of(context).push('/north_screen'); 
+    });
   }
 
   @override
@@ -48,44 +91,74 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 _buildPhoneField(
                     'Ingresa tu número telefónico', _phoneController),
                 const SizedBox(height: 16.0),
-                _buildSectionTitle('Selecciona el estilo de baile'),
-                _buildDanceStyleButtons(),
+                const SectionTitle('Selecciona el estilo de baile'),
+                SelectionButtonGroup(
+                  options: const ['Salsa', 'Cumbia'],
+                  selectedValue: _selectedDanceStyle,
+                  onSelected: (value) =>
+                      setState(() => _selectedDanceStyle = value),
+                ),
                 const SizedBox(height: 16.0),
-                _buildSectionTitle('Selecciona el horario'),
-                _buildScheduleButtons(),
+                const SectionTitle('Selecciona el horario'),
+                SelectionButtonGroup(
+                  options: const ['Lun/Mie', 'Mar/Jue', 'Sabado'],
+                  selectedValue: _selectedSchedule,
+                  onSelected: (value) =>
+                      setState(() => _selectedSchedule = value),
+                ),
                 const SizedBox(height: 16.0),
-                _buildSectionTitle('Selecciona el nivel'),
-                _buildLevelButtons(),
+                const SectionTitle('Selecciona el nivel'),
+                SelectionButtonGroup(
+                  options: const [
+                    'Básico',
+                    'Básico Avanzado',
+                    'Intermedio',
+                    'Clase Muestra'
+                  ],
+                  selectedValue: _selectedLevel,
+                  onSelected: (value) => setState(() => _selectedLevel = value),
+                ),
+                if (_selectedLevel == 'Clase Muestra')
+                  DatePickerWidget(
+                    selectedDate: _classDate,
+                    onDateSelected: (pickedDate) =>
+                        setState(() => _classDate = pickedDate),
+                  ),
+                const SizedBox(height: 16.0),
+                const SectionTitle('Selecciona el Maestro'),
+                SelectionButtonGroup(
+                  options: const ['Desi', 'Nico', 'Juan', 'Ximena', 'Monse'],
+                  selectedValue: _selectedTeacher,
+                  onSelected: (value) =>
+                      setState(() => _selectedTeacher = value),
+                ),
                 const SizedBox(height: 24.0),
                 Center(
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradientButton,
-                        borderRadius: BorderRadius.circular(16.0)),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16.0))),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate() &&
-                            _selectedDanceStyle.isNotEmpty &&
-                            _selectedSchedule.isNotEmpty &&
-                            _selectedLevel.isNotEmpty) {
-                          _saveStudent();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Por favor completa todos los campos requeridos'),
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text('Agregar Alumno'),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryEnd,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 24),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
                     ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate() &&
+                          _selectedDanceStyle.isNotEmpty &&
+                          _selectedSchedule.isNotEmpty &&
+                          _selectedLevel.isNotEmpty) {
+                        _saveStudent();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Por favor completa todos los campos requeridos'),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Agregar Alumno'),
                   ),
                 ),
               ],
@@ -97,17 +170,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   }
 
   Widget _buildTextField(String hintText, TextEditingController controller) {
-    return TextFormField(
+    return CustomTextField(
+      hintText: hintText,
       controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        filled: true,
-        fillColor: Colors.transparent,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: AppColors.primaryStart),
-        ),
-      ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Por favor ingresa un valor';
@@ -121,180 +186,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   }
 
   Widget _buildPhoneField(String hintText, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: TextInputType.phone,
-      decoration: InputDecoration(
-        hintText: hintText,
-        filled: true,
-        fillColor: Colors.transparent,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: AppColors.primaryStart),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Por favor ingresa un valor';
-        }
-        final phoneRegex =
-            RegExp(r'^[0-9]{10}$'); // Valida un número de 10 dígitos
-        if (!phoneRegex.hasMatch(value)) {
-          return 'Ingresa un número telefónico válido (10 dígitos)';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _buildDanceStyleButtons() {
-    return Row(
-      children: ['Salsa', 'Cumbia'].map((style) {
-        return _buildSelectionButton(
-          style,
-          _selectedDanceStyle == style,
-          () => setState(() => _selectedDanceStyle = style),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildScheduleButtons() {
-    return Row(
-      children: ['Lun/Mie', 'Mar/Jue', 'Sabado'].map((schedule) {
-        return _buildSelectionButton(
-          schedule,
-          _selectedSchedule == schedule,
-          () => setState(() => _selectedSchedule = schedule),
-        );
-      }).toList(),
-    );
-  }
-
-Widget _buildLevelButtons() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: ['Básico', 'Básico Avanzado', 'Intermedio', 'Clase Muestra']
-              .map((level) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0), // Espacio entre botones
-              child: _buildSelectionButton(
-                level,
-                _selectedLevel == level,
-                () => setState(() => _selectedLevel = level),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-      if (_selectedLevel == 'Clase Muestra') _buildDatePicker(),
-    ],
-  );
-}
-
- Widget _buildSelectionButton(
-    String text, bool isSelected, VoidCallback onPressed) {
-  return Padding(
-    padding: const EdgeInsets.only(right: 8.0),
-    child: OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        backgroundColor:
-            isSelected ? AppColors.primaryEnd : Colors.transparent,
-        side: const BorderSide(color: AppColors.primaryStart),
-      ),
-      child: Text(text),
-    ),
-  );
-}
-
-
-  Widget _buildDatePicker() {
-    return TextButton(
-      onPressed: () async {
-        final DateTime? pickedDate = await showDatePicker(
-          context: context,
-          initialDate: DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (pickedDate != null) {
-          setState(() {
-            _classDate = pickedDate;
-          });
-        }
-      },
-      child: Text(_classDate == null
-          ? 'Selecciona una fecha'
-          : 'Fecha seleccionada: ${_classDate!.toLocal()}'),
-    );
-  }
-
-  void _showSuccessAnimation() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Lottie.asset(
-                  'lib/src/core/assets/animations/check_succes.json', // Ruta al archivo JSON de Lottie
-                  repeat: false,
-                  width: 150,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Alumno agregado con éxito',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    // Cerrar el diálogo y regresar a la pantalla anterior después de 2 segundos
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Cerrar el diálogo de éxito
-       GoRouter.of(context).push('/north_screen');// Regresar a la pantalla anterior
-    });
-  }
-
-  void _saveStudent() {
-    final newStudent = Student(
-      name: _nameController.text,
-      phone: _phoneController.text,
-      danceStyle: _selectedDanceStyle,
-      schedule: _selectedSchedule,
-      level: _selectedLevel,
-      classDate: _selectedLevel == 'Clase Muestra' ? _classDate : null,
-    );
-
-    _studentRepo.addStudent(newStudent).then((_) {
-      _showSuccessAnimation();
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al agregar alumno')),
-      );
-    });
+    return PhoneTextField(controller: controller);
   }
 }

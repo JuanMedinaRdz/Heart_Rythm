@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:lottie/lottie.dart';
+import 'package:hearth_rythm/src/core/constants/app_color.dart';
+import 'package:hearth_rythm/src/features/students/edith_student_form.dart';
+import 'package:hearth_rythm/src/features/students/monthly_payment_screen.dart';
+import 'package:hearth_rythm/src/widgets/north/succes_animation_dialog.dart';
 
 class StudentDetailScreen extends StatefulWidget {
   final Map<String, dynamic> studentData;
@@ -15,113 +18,195 @@ class StudentDetailScreen extends StatefulWidget {
   });
 
   @override
-  _StudentDetailSheetState createState() => _StudentDetailSheetState();
+  State<StudentDetailScreen> createState() => _StudentDetailScreenState();
 }
 
-class _StudentDetailSheetState extends State<StudentDetailScreen> {
-  Map<String, bool> paidMonths = {};
-  bool _showAnimation = false;
+class _StudentDetailScreenState extends State<StudentDetailScreen> {
+  bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    loadPaidMonths();
+  String get phone => widget.studentData['phone'] ?? 'Sin Teléfono';
+  String get teacher => widget.studentData['teacher'] ?? 'Maestro desconocido';
+  String get schedule => widget.studentData['schedule'] ?? 'Sin Horario';
+
+  void _openEditForm() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 16,
+            ),
+            child: EditStudentForm(
+              initialData: widget.studentData,
+              onSave: _updateStudent,
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  void loadPaidMonths() {
-    if (widget.studentData.containsKey('paidMonths')) {
+  Future<void> _updateStudent(Map<String, dynamic> updatedData) async {
+    Navigator.pop(context); 
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('students')
+          .doc(widget.docId)
+          .update(updatedData);
       setState(() {
-        paidMonths = Map<String, bool>.from(widget.studentData['paidMonths']);
+        _isLoading = false;
       });
+      _showSuccessAnimation();
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al actualizar el alumno')),
+      );
     }
   }
 
-  void updateMonthPayment(String month, bool isPaid) {
-    setState(() {
-      paidMonths[month] = isPaid;
-      _showAnimation = true; // Mostrar la animación
-    });
+  void _showSuccessAnimation() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return const SuccessAnimationDialog(
+          message: 'Alumno actualizado con éxito',
+        );
+      },
+    );
 
-    // Ocultar la animación después de un tiempo
-    Future.delayed(const Duration(seconds: 5), () {
-      setState(() {
-        _showAnimation = false;
-      });
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop(); 
     });
+  }
 
-    // Actualizar en Firebase el estado de pagos de mensualidades
-    FirebaseFirestore.instance
-        .collection('students')
-        .doc(widget.docId)
-        .update({'paidMonths': paidMonths});
+  void _goToMonthlyPayments() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MonthlyPaymentScreen(
+          docId: widget.docId,
+          studentName: widget.name,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Nombre del alumno
-          Text(
-            widget.name,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          // Teléfono del alumno
-          Text(
-            'Teléfono: ${widget.studentData['phone'] ?? 'Sin Teléfono'}',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          // Título de mensualidades
-          Text(
-            'Mensualidades Pagadas',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          // Lista de meses para registrar el pago de mensualidades
-          Expanded(
-            child: Stack(
-              children: [
-                ListView(
-                  children: [
-                    for (var month in [
-                      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                    ])
-                      ListTile(
-                        title: Text(month),
-                        trailing: Checkbox(
-                          value: paidMonths[month] ?? false,
-                          onChanged: (value) {
-                            updateMonthPayment(month, value ?? false);
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-                if (_showAnimation)
+    final name = widget.name;
+
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Center(
-                    child: Lottie.asset(
-                      'lib/src/core/assets/animations/cash.json', // Ruta del archivo Lottie
-                      width: 250,
-                      height: 250,
-                      repeat: false,
+                    child: Text(
+                      name,
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                   ),
-              ],
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      'Teléfono: $phone',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      'Maestro: $teacher',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      'Día: $schedule',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 26),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildActionButton(
+                        icon: Icons.payment,
+                        label: 'Mensualidades',
+                        onTap: _goToMonthlyPayments,
+                      ),
+                      _buildActionButton(
+                        icon: Icons.edit,
+                        label: 'Editar Alumno',
+                        onTap: _openEditForm,
+                      ),
+                      _buildActionButton(
+                        icon: Icons.star,
+                        label: 'Extra',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Funcionalidad extra :)')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 26),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cerrar'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // Botón para cerrar el sheet
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
+          );
   }
+
+Widget _buildActionButton({
+  required IconData icon,
+  required String label,
+  required VoidCallback onTap,
+}) {
+  return Column(
+    children: [
+      InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8.0), // Ajusta el radio para esquinas más o menos redondeadas
+        child: Container(
+          width: 100,
+          height: 55,
+          decoration: BoxDecoration(
+            color: AppColors.primaryStart,
+            borderRadius: BorderRadius.circular(8.0), // Ajusta para hacerlo más cuadrado o sin borde redondeado
+          ),
+          child: Icon(icon, color: Colors.white),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(label, style: const TextStyle(fontSize: 14)),
+    ],
+  );
+}
+
 }

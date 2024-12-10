@@ -19,6 +19,7 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
 
   String _selectedSchedule = '';
   String _selectedLevel = '';
+  String _selectedTeacher = '';
   DateTime? _classDate;
 
   final _studentRepo = StudentSouthRepository();
@@ -52,6 +53,9 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
                 const SizedBox(height: 16.0),
                 _buildSectionTitle('Selecciona el nivel'),
                 _buildLevelButtons(),
+                const SizedBox(height: 16.0),
+                _buildSectionTitle('Selecciona un Maestro'),
+                _buildTeacherButtons(),
                 const SizedBox(height: 24.0),
                 Center(
                   child: Container(
@@ -168,7 +172,12 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: ['Básico','Básico Avanzado', 'Intermedio', 'Clase Muestra'].map((level) {
+            children: [
+              'Básico',
+              'Básico Avanzado',
+              'Intermedio',
+              'Clase Muestra'
+            ].map((level) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: _buildSelectionButton(
@@ -185,21 +194,47 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
     );
   }
 
- Widget _buildSelectionButton(
-    String text, bool isSelected, VoidCallback onPressed) {
-  return Padding(
-    padding: const EdgeInsets.only(right: 8.0),
-    child: OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        backgroundColor:
-            isSelected ? AppColors.primaryEnd : Colors.transparent,
-        side: const BorderSide(color: AppColors.secondStart),
+  Widget _buildTeacherButtons() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              'Nico',
+              'Ximena',
+            ].map((teacher) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildSelectionButton(
+                  teacher,
+                  _selectedTeacher == teacher,
+                  () => setState(() => _selectedTeacher = teacher),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectionButton(
+      String text, bool isSelected, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor:
+              isSelected ? AppColors.primaryEnd : Colors.transparent,
+          side: const BorderSide(color: AppColors.secondStart),
+        ),
+        child: Text(text),
       ),
-      child: Text(text),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildDatePicker() {
     return TextButton(
@@ -256,7 +291,8 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
     // Cerrar el diálogo y regresar a la pantalla anterior después de 2 segundos
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop(); // Cerrar el diálogo de éxito
-       GoRouter.of(context).push('/south_screen');// Regresar a la pantalla anterior
+      GoRouter.of(context)
+          .push('/south_screen'); // Regresar a la pantalla anterior
     });
   }
 
@@ -266,6 +302,7 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
       phone: _phoneController.text,
       schedule: _selectedSchedule,
       level: _selectedLevel,
+      teacher: _selectedTeacher,
       classDate: _selectedLevel == 'Clase Muestra' ? _classDate : null,
     );
 

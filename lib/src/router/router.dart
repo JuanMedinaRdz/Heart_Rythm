@@ -139,7 +139,7 @@ final GoRouter router = GoRouter(
           path: 'student_detail_screen',
           name: 'student_detail_screen2',
           builder: (context, state) {
-            return const StudentDetailSouthScreen(
+            return const StudentDetailScreenSouth(
               studentData: {},
               name: '',
               docId: '',

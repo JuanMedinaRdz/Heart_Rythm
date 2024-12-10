@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/core/constants/text_styles.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_south_screen.dart';
-import 'package:hearth_rythm/src/widgets/north/filter_widget.dart';
 import 'package:hearth_rythm/src/widgets/south/navbar_south_screen.dart';
 
 class AlumnosListScreen extends StatefulWidget {
@@ -17,6 +16,7 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
   String searchTerm = "";
   String selectedLevel = "";
   String selectedSchedule = "";
+  String selectedTeacher = "";
 
   String _getInitials(String name) {
     List<String> words = name.split(" ");
@@ -62,11 +62,100 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
     return null;
   }
 
+  void _clearFilters() {
+    setState(() {
+      selectedLevel = "";
+      selectedSchedule = "";
+      selectedTeacher = "";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Alumnos"),
+        actions: [
+          Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.filter_list),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              );
+            },
+          ),
+        ],
+      ),
+      endDrawer: Drawer(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Filtrar por Nivel",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                ...["Básico", "Básico Avanzado", "Intermedio", "Clase Muestra"]
+                    .map((option) => RadioListTile<String>(
+                          title: Text(option),
+                          value: option,
+                          groupValue: selectedLevel,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedLevel = value ?? "";
+                            });
+                            Navigator.pop(context);
+                          },
+                        ))
+                    .toList(),
+                const SizedBox(height: 16),
+                const Text("Filtrar por Día",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                ...["Lun/Mie", "Mar/Jue", "Sabado"]
+                    .map((option) => RadioListTile<String>(
+                          title: Text(option),
+                          value: option,
+                          groupValue: selectedSchedule,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedSchedule = value ?? "";
+                            });
+                            Navigator.pop(context);
+                          },
+                        ))
+                    .toList(),
+                const SizedBox(height: 16),
+                const Text("Filtrar por Maestro",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                ...["Nico", "Ximena"]
+                    .map((option) => RadioListTile<String>(
+                          title: Text(option),
+                          value: option,
+                          groupValue: selectedTeacher,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedTeacher = value ?? "";
+                            });
+                            Navigator.pop(context);
+                          },
+                        ))
+                    .toList(),
+                const Spacer(),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _clearFilters();
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.clear),
+                  label: const Text("Limpiar Filtros"),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -80,34 +169,6 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
               onChanged: (value) {
                 setState(() {
                   searchTerm = value.toLowerCase();
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FilterWidget(
-              title: "Filtrar por Nivel",
-              field: "level",
-              options: ["Básico","Básico Avanzado", "Intermedio", "Clase Muestra"],
-              selectedValue: selectedLevel,
-              onSelected: (value) {
-                setState(() {
-                  selectedLevel = value;
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FilterWidget(
-              title: "Filtrar por Día",
-              field: "schedule",
-              options: ["Lun/Mie", "Mar/Jue", "Sabado"],
-              selectedValue: selectedSchedule,
-              onSelected: (value) {
-                setState(() {
-                  selectedSchedule = value;
                 });
               },
             ),
@@ -139,7 +200,7 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
                   }).toList();
                 }
 
-                if (selectedLevel.isNotEmpty ) {
+                if (selectedLevel.isNotEmpty) {
                   studentsSouth = studentsSouth.where((student) {
                     String level = student['level']?.toString() ?? '';
                     return level == selectedLevel;
@@ -160,6 +221,8 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
                     String phone = data['phone'] ?? 'Sin Teléfono';
                     String level = data['level'] ?? 'Sin Nivel';
                     String schedule = data['schedule'] ?? 'Sin Horario';
+                    String teacher = data['teacher'] ?? 'Maestro desconocido';
+                    
                     String initials = _getInitials(name);
 
                     return Dismissible(
@@ -218,6 +281,10 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
                                       style:
                                           AppTextStyles.studentTextContainer),
                                   const SizedBox(height: 4),
+                                  Text("Maestro: $teacher",
+                                      style:
+                                          AppTextStyles.studentTextContainer),
+                                  const SizedBox(height: 4),
                                   Text("Nivel: $level",
                                       style:
                                           AppTextStyles.studentTextContainer),
@@ -254,7 +321,7 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
         var studentData = doc.data();
         showModalBottomSheet(
           context: context,
-          builder: (_) => StudentDetailSouthScreen(
+          builder: (_) => StudentDetailScreenSouth(
             studentData: studentData,
             name: name,
             docId: doc.id,
