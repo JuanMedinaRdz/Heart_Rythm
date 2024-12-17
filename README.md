@@ -6,7 +6,7 @@
 
 | Pantalla Principal | Detalle del Alumno | Mensualidades |
 |--------------------|--------------------|---------------|
-| ![Lista de Alumnos](assets/readme/alumnos_main.jpg) | ![Detalle del Alumno](assets/readme/alumnos_detail.jpg) | ![Mensualidades](assets/readme/alumnos_detail.jpg) |
+| ![Lista de Alumnos](assets/alumnos_main.jpg) | ![Detalle del Alumno](assets/alumnos_detail.jpg) | ![Mensualidades](assets/alumnos_detail.jpg) |
 
 *(Asegúrate de reemplazar las rutas de las imágenes según tu estructura.)*
 
