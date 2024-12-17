@@ -8,7 +8,11 @@
 |--------------------|--------------------|---------------|
 | ![Lista de Alumnos](assets/alumnos_main.jpg) | ![Detalle del Alumno](assets/alumnos_detail.jpg) | ![Mensualidades](assets/alumnos_screen.jpg) |
 
-*(Asegúrate de reemplazar las rutas de las imágenes según tu estructura.)*
+
+## 
+| Add Student        | Pantalla Principal | Eventos de Calendario |
+|--------------------|--------------------|-----------------------|
+| ![Lista de Alumnos](assets/add_screen.jpg) | ![Detalle del Alumno](assets/main_screen.jpg) | ![Mensualidades](assets/calendar_event.jpg) |
 
 ## Características
 
