@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:hearth_rythm/src/widgets/north/custom_text_field.dart';
 
 class PhoneTextField extends StatelessWidget {
@@ -22,6 +22,7 @@ class PhoneTextField extends StatelessWidget {
         }
         return null;
       },
+      icon: const Icon(Icons.phone),
     );
   }
 }

@@ -22,16 +22,13 @@ class NavBarNorth extends StatelessWidget {
         switch (index) {
           case 0: // Inicio
             GoRouter.of(context)
-                .go('/north_screen'); // Navegar a la pantalla de inicio
+                .push('/north_screen'); // Navegar a la pantalla de inicio
             break;
           case 1: // Configuración
             // Navegar a la pantalla de configuración (si tienes una)
             GoRouter.of(context).push('/north_screen/salsa_bachata_screen');
             break;
-          case 2: // Salsa y Bachata
-            // Navegar a la pantalla de perfil (si tienes una)
-            GoRouter.of(context).go('/north_screen/cumbia_screen');
-            break;
+
 
         }
       },
@@ -42,12 +39,8 @@ class NavBarNorth extends StatelessWidget {
         ),
 
         BottomNavigationBarItem(
-          icon: Image.asset('lib/src/core/assets/images/salsa.png'),
-          label: 'Salsa/Bachata',
-        ),
-        BottomNavigationBarItem(
-          icon: Image.asset('lib/src/core/assets/images/dancing.png'),
-          label: 'Cumbia',
+          icon: Icon(Icons.person_search_rounded),
+          label: 'Alumnos',
         ),
 
       ],

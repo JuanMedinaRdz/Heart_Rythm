@@ -21,6 +21,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
   String _selectedLevel = '';
   String _selectedTeacher = '';
   String _selectedSchedule = '';
+  DateTime? _classDate;
 
   @override
   void initState() {
@@ -30,6 +31,15 @@ class _EditStudentFormState extends State<EditStudentForm> {
     _selectedLevel = widget.initialData['level'] ?? '';
     _selectedTeacher = widget.initialData['teacher'] ?? '';
     _selectedSchedule = widget.initialData['schedule'] ?? '';
+
+    // Si el alumno ya tenía classDate como String ISO8601,
+    // conviértelo a DateTime para poder mostrar/editar
+    if (_selectedLevel == 'Clase Muestra' && widget.initialData['classDate'] != null) {
+      final rawDate = widget.initialData['classDate'];
+      if (rawDate is String) {
+        _classDate = DateTime.tryParse(rawDate);
+      }
+    }
   }
 
   @override
@@ -40,10 +50,11 @@ class _EditStudentFormState extends State<EditStudentForm> {
   }
 
   void _saveChanges() {
-    if (_formKey.currentState!.validate() &&
-        _selectedLevel.isNotEmpty &&
-        _selectedTeacher.isNotEmpty &&
-        _selectedSchedule.isNotEmpty) {
+    if (_formKey.currentState!.validate()
+        && _selectedLevel.isNotEmpty
+        && _selectedTeacher.isNotEmpty
+        && _selectedSchedule.isNotEmpty) 
+    {
       final updatedData = {
         'name': _nameController.text,
         'phone': _phoneController.text,
@@ -52,11 +63,34 @@ class _EditStudentFormState extends State<EditStudentForm> {
         'schedule': _selectedSchedule,
         'updatedAt': DateTime.now(),
       };
+
+      // Si es Clase Muestra, guarda la fecha en formato ISO8601
+      if (_selectedLevel == 'Clase Muestra' && _classDate != null) {
+        updatedData['classDate'] = _classDate!.toIso8601String();
+      } else {
+        // Si dejas de ser Clase Muestra, podrías eliminarlo
+        // updatedData['classDate'] = null;
+      }
+
       widget.onSave(updatedData);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Completa todos los campos')),
       );
+    }
+  }
+
+  void _pickClassDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _classDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _classDate = picked;
+      });
     }
   }
 
@@ -91,6 +125,28 @@ class _EditStudentFormState extends State<EditStudentForm> {
               options: ['Lun/Mie', 'Mar/Jue', 'Sabado'],
               onChanged: (value) => setState(() => _selectedSchedule = value ?? ''),
             ),
+            // Mostrar un campo de fecha si es clase muestra
+            if (_selectedLevel == 'Clase Muestra')
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Fecha Clase Muestra: '),
+                    Text(
+                      _classDate == null
+                          ? 'No seleccionada'
+                          : '${_classDate!.toLocal()}'.split(' ')[0],
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: _pickClassDate,
+                    ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _saveChanges,

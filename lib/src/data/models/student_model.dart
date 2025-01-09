@@ -1,6 +1,7 @@
 class Student {
   final String name;
   final String phone;
+  final String? amount;
   final String? danceStyle;
   final String schedule;
   final String level;
@@ -10,6 +11,7 @@ class Student {
   Student({
     required this.name,
     required this.phone,
+    this.amount,
     this.danceStyle,
     required this.schedule,
     required this.level,
@@ -22,6 +24,7 @@ class Student {
     return {
       'name': name,
       'phone': phone,
+      'amount': amount,
       'danceStyle': danceStyle,
       'schedule': schedule,
       'level': level,

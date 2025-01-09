@@ -21,6 +21,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _paymentController = TextEditingController();
 
   String _selectedDanceStyle = '';
   String _selectedSchedule = '';
@@ -34,43 +35,46 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _paymentController.dispose();
     super.dispose();
   }
 
-void _saveStudent() {
-  final newStudent = Student(
-    name: _nameController.text,
-    phone: _phoneController.text,
-    danceStyle: _selectedDanceStyle,
-    schedule: _selectedSchedule,
-    level: _selectedLevel,
-    teacher: _selectedTeacher,
-    classDate: _selectedLevel == 'Clase Muestra' ? _classDate : null,
-  );
-
-  _studentRepo.addStudent(newStudent).then((_) {
-    _showSuccessAnimation();
-  }).catchError((error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Error al agregar alumno')),
+  void _saveStudent() {
+    final amountText = _paymentController.text.trim();
+    final newStudent = Student(
+      name: _nameController.text,
+      phone: _phoneController.text,
+      amount: amountText,
+      danceStyle: _selectedDanceStyle,
+      schedule: _selectedSchedule,
+      level: _selectedLevel,
+      teacher: _selectedTeacher,
+      classDate: _selectedLevel == 'Clase Muestra' ? _classDate : null,
     );
-  });
-}
 
- void _showSuccessAnimation() {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return SuccessAnimationDialog(
-        message: 'Alumno agregado con éxito',
+    _studentRepo.addStudent(newStudent).then((_) {
+      _showSuccessAnimation();
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al agregar alumno')),
       );
-    },
-  );
+    });
+  }
+
+  void _showSuccessAnimation() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SuccessAnimationDialog(
+          message: 'Alumno agregado con éxito',
+        );
+      },
+    );
 
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); 
-      GoRouter.of(context).push('/north_screen'); 
+      Navigator.of(context).pop();
+      GoRouter.of(context).push('/north_screen');
     });
   }
 
@@ -124,6 +128,10 @@ void _saveStudent() {
                     onDateSelected: (pickedDate) =>
                         setState(() => _classDate = pickedDate),
                   ),
+                const SizedBox(height: 16.0),
+                const SectionTitle('Cantidad en pesos'),
+                _buildPaymentField(
+                    'Ingresa la cantidad en pesos', _paymentController),
                 const SizedBox(height: 16.0),
                 const SectionTitle('Selecciona el Maestro'),
                 SelectionButtonGroup(
@@ -182,10 +190,32 @@ void _saveStudent() {
         }
         return null;
       },
+      icon: const Icon(Icons.person),
     );
   }
 
   Widget _buildPhoneField(String hintText, TextEditingController controller) {
     return PhoneTextField(controller: controller);
+  }
+
+  Widget _buildPaymentField(String hintText, TextEditingController controller) {
+    // Ejemplo de validación simple. También podrías parsear a double si lo requieres.
+    return CustomTextField(
+      hintText: hintText,
+      controller: controller,
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor ingresa la cantidad en pesos';
+        }
+        // Validación simple para comprobar que sea numérico
+        final numericRegex = RegExp(r'^[0-9]+(\.[0-9]+)?$');
+        if (!numericRegex.hasMatch(value)) {
+          return 'Ingresa un valor numérico válido';
+        }
+        return null;
+      },
+      icon: const Icon(Icons.attach_money),
+    );
   }
 }

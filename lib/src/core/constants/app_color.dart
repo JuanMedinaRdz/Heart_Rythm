@@ -9,7 +9,9 @@ class AppColors {
      // Color final del degradado
   static const Color iconColor = Colors.white;
   static const Color studentContainer = Color.fromARGB(255, 234, 221, 255);
+  static const Color claseMuestraContainer = Color.fromARGB(255, 216, 154, 171);
   static const Color southGamma = Color.fromARGB(255, 109, 34, 170);
+
   // Degradado para botones primarios
   static const Gradient primaryGradientButton = LinearGradient(
     colors: [

@@ -4,6 +4,7 @@ import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/core/constants/text_styles.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
 import 'package:hearth_rythm/src/widgets/north/navbar_north_screen.dart';
+import 'package:intl/intl.dart';
 
 class SalsaBachataScreen extends StatefulWidget {
   const SalsaBachataScreen({super.key});
@@ -17,6 +18,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
   String selectedLevel = "";
   String selectedSchedule = "";
   String selectedTeacher = "";
+  String selectedDanceStyle = "";
 
   String _getInitials(String name) {
     List<String> words = name.split(" ");
@@ -67,7 +69,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
       selectedLevel = "";
       selectedSchedule = "";
       selectedTeacher = "";
-
+      selectedDanceStyle = "";
     });
   }
 
@@ -75,15 +77,14 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Alumnos de Salsa"),
+        title: const Text("Alumnos Sucursal Norte"),
         actions: [
           Builder(
             builder: (context) {
               return IconButton(
                 icon: const Icon(Icons.filter_list),
                 onPressed: () {
-                  Scaffold.of(context)
-                      .openEndDrawer(); 
+                  Scaffold.of(context).openEndDrawer();
                 },
               );
             },
@@ -92,69 +93,93 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
       ),
       endDrawer: Drawer(
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Filtrar por Nivel",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                ...["Básico", "Básico Avanzado", "Intermedio", "Clase Muestra"]
-                    .map((option) => RadioListTile<String>(
-                          title: Text(option),
-                          value: option,
-                          groupValue: selectedLevel,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedLevel = value ?? "";
-                            });
-                            Navigator.pop(context);
-                          },
-                        ))
-                    .toList(),
-                const SizedBox(height: 16),
-                const Text("Filtrar por Día",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                ...["Lun/Mie", "Mar/Jue", "Sabado"]
-                    .map((option) => RadioListTile<String>(
-                          title: Text(option),
-                          value: option,
-                          groupValue: selectedSchedule,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedSchedule = value ?? "";
-                            });
-                            Navigator.pop(context); 
-                          },
-                        ))
-                    .toList(),
-                const SizedBox(height: 16),
-                const Text("Filtrar por Maestro",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                ...["Desi", "Nico", "Juan", "Ximena","Monse"]
-                    .map((option) => RadioListTile<String>(
-                          title: Text(option),
-                          value: option,
-                          groupValue: selectedTeacher,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedTeacher = value ?? "";
-                            });
-                            Navigator.pop(context);
-                          },
-                        ))
-                    .toList(),
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _clearFilters();
-                    Navigator.pop(context); 
-                  },
-                  icon: const Icon(Icons.clear),
-                  label: const Text("Limpiar Filtros"),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                ),
-              ],
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Filtrar por Nivel",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...[
+                    "Básico",
+                    "Básico Avanzado",
+                    "Intermedio",
+                    "Clase Muestra"
+                  ].map((option) => RadioListTile<String>(
+                        title: Text(option),
+                        value: option,
+                        groupValue: selectedLevel,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedLevel = value ?? "";
+                          });
+                          Navigator.pop(context);
+                        },
+                      )),
+                  const SizedBox(height: 16),
+                  const Text("Filtrar por Día",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...["Lun/Mie", "Mar/Jue", "Sabado"]
+                      .map((option) => RadioListTile<String>(
+                            title: Text(option),
+                            value: option,
+                            groupValue: selectedSchedule,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedSchedule = value ?? "";
+                              });
+                              Navigator.pop(context);
+                            },
+                          )),
+                  const SizedBox(height: 16),
+                  const Text("Filtrar por Maestro",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...["Desi", "Nico", "Juan", "Ximena", "Monse"]
+                      .map((option) => RadioListTile<String>(
+                            title: Text(option),
+                            value: option,
+                            groupValue: selectedTeacher,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedTeacher = value ?? "";
+                              });
+                              Navigator.pop(context);
+                            },
+                          )),
+                  const SizedBox(height: 16),
+                  const Text("Filtrar por Estilo de Baile",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...[
+                    "Salsa",
+                    "Cumbia",
+                    "Kisomba",
+                  ].map((option) => RadioListTile<String>(
+                        title: Text(option),
+                        value: option,
+                        groupValue: selectedDanceStyle,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedDanceStyle = value ?? "";
+                          });
+                          Navigator.pop(context);
+                        },
+                      )),
+                  const SizedBox(height: 16),
+                  // Podemos quitar el Spacer, pues SingleChildScrollView no limita el tamaño interno
+                  // const Spacer(),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _clearFilters();
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.clear),
+                    label: const Text("Limpiar Filtros"),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -165,7 +190,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Buscar por nombre',
+                labelText: 'Buscar por nombre o telefono',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -179,7 +204,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('students')
-                  .where('danceStyle', isEqualTo: 'Salsa')
+                  .where('danceStyle')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -199,7 +224,12 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                   students = students.where((student) {
                     String name =
                         student['name']?.toString().toLowerCase() ?? '';
-                    return name.contains(searchTerm);
+                    String phone =
+                        student['phone']?.toString().toLowerCase() ?? '';
+
+                    // Retorna true si "searchTerm" aparece en el nombre o en el teléfono
+                    return name.contains(searchTerm) ||
+                        phone.contains(searchTerm);
                   }).toList();
                 }
 
@@ -216,101 +246,122 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                     return schedule == selectedSchedule;
                   }).toList();
                 }
-                
+
                 if (selectedTeacher.isNotEmpty) {
                   students = students.where((student) {
                     String teacher = student['teacher']?.toString() ?? '';
                     return teacher == selectedTeacher;
                   }).toList();
                 }
+                                if (selectedDanceStyle.isNotEmpty) {
+                  students = students.where((student) {
+                    String danceStyle = student['danceStyle']?.toString() ?? '';
+                    return danceStyle == selectedDanceStyle;
+                  }).toList();
+                }
 
-                return ListView.builder(
-                  itemCount: students.length,
-                  itemBuilder: (context, index) {
-                    var data = students[index];
-                    String name = data['name'] ?? 'Sin Nombre';
-                    String phone = data['phone'] ?? 'Sin Teléfono';
-                    String level = data['level'] ?? 'Sin Nivel';
-                    String teacher = data['teacher'] ?? 'Maestro desconocido';
-                    String schedule = data['schedule'] ?? 'Sin Horario';
-                    String initials = _getInitials(name);
+return ListView.builder(
+  itemCount: students.length,
+  itemBuilder: (context, index) {
+    var data = students[index];
+    String name = data['name'] ?? 'Sin Nombre';
+    String phone = data['phone'] ?? 'Sin Teléfono';
+    String level = data['level'] ?? 'Sin Nivel';
+    String teacher = data['teacher'] ?? 'Maestro desconocido';
+    String schedule = data['schedule'] ?? 'Sin Horario';
+    
+    // Obtenemos la fecha en ISO8601
+    String? rawDate = data['classDate'];
 
-                    return Dismissible(
-                      key: Key(name),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (_) => _confirmDelete(name),
-                      confirmDismiss: (direction) async {
-                        return await _confirmDelete(name);
-                      },
-                      background: Container(
-                        color: Colors.red,
-                        padding: const EdgeInsets.only(left: 16),
-                        alignment: Alignment.centerLeft,
-                        child: const Icon(Icons.delete, color: Colors.white),
+    // Parseamos la fecha (podría ser null o no parseable)
+    DateTime? parsedDate = (rawDate != null) ? DateTime.tryParse(rawDate) : null;
+    // Formateador de fecha, ejemplo dd/MM/yyyy
+    final DateFormat formatter = DateFormat('dd/MM/yyyy');
+    
+    // Generamos iniciales
+    String initials = _getInitials(name);
+
+    // Cambiamos el color si es "Clase Muestra"
+    final containerColor = (level == "Clase Muestra")
+      ? AppColors.claseMuestraContainer// color alternativo
+      : AppColors.studentContainer;
+
+    return Dismissible(
+      key: Key(name),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => _confirmDelete(name),
+      confirmDismiss: (direction) async {
+        return await _confirmDelete(name);
+      },
+      background: Container(
+        color: Colors.red,
+        padding: const EdgeInsets.only(left: 16),
+        alignment: Alignment.centerLeft,
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      child: GestureDetector(
+        onTap: () => openStudentDetail(context, name),
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: containerColor,       // <-- color distinto para clase muestra
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundColor: AppColors.primaryStart,
+                child: Text(
+                  initials,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: AppTextStyles.studentTextContainer),
+                  const SizedBox(height: 4),
+                  Text("Teléfono: $phone", style: AppTextStyles.studentTextContainer),
+                  const SizedBox(height: 4),
+                  Text("Nivel: $level", style: AppTextStyles.studentTextContainer),
+                  const SizedBox(height: 4),
+                  Text("Maestro: $teacher", style: AppTextStyles.studentTextContainer),
+                  const SizedBox(height: 4),
+                  Text("Día: $schedule", style: AppTextStyles.studentTextContainer),
+                  
+                  // Muestra la fecha formateada solo si es Clase Muestra y parsedDate no es null
+                  if (level == "Clase Muestra" && parsedDate != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        "Fecha: ${formatter.format(parsedDate)}",
+                        style: AppTextStyles.studentTextContainer,
                       ),
-                      child: GestureDetector(
-                        onTap: () => openStudentDetail(context, name),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 16),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.studentContainer,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 25,
-                                backgroundColor: AppColors.primaryStart,
-                                child: Text(
-                                  initials,
-                                  style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    name,
-                                    style: AppTextStyles.studentTextContainer,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text("Teléfono: $phone",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
-                                  const SizedBox(height: 4),
-                                  Text("Nivel: $level",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
-                                  const SizedBox(height: 4),
-                                  Text("Maestro: $teacher",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
-                                  const SizedBox(height: 4),
-                                  Text("Día: $schedule",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+);
+
               },
             ),
           ),

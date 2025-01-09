@@ -163,7 +163,7 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Buscar por nombre',
+                labelText: 'Buscar por nombre o telefono',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -193,13 +193,15 @@ class _CumbiaScreenState extends State<CumbiaScreen> {
                     .map((doc) => doc.data() as Map<String, dynamic>)
                     .toList();
 
-                if (searchTerm.isNotEmpty) {
-                  students = students.where((student) {
-                    String schedule =
-                        student['name']?.toString().toLowerCase() ?? '';
-                    return schedule.contains(searchTerm);
-                  }).toList();
-                }
+  if (searchTerm.isNotEmpty) {
+  students = students.where((student) {
+    String name = student['name']?.toString().toLowerCase() ?? '';
+    String phone = student['phone']?.toString().toLowerCase() ?? '';
+
+    // Retorna true si "searchTerm" aparece en el nombre o en el teléfono
+    return name.contains(searchTerm) || phone.contains(searchTerm);
+  }).toList();
+}
 
                 if (selectedLevel.isNotEmpty) {
                   students = students.where((student) {

@@ -5,6 +5,7 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?) validator;
   final TextInputType keyboardType;
+  final Widget? icon; // ícono opcional
 
   const CustomTextField({
     super.key,
@@ -12,6 +13,7 @@ class CustomTextField extends StatelessWidget {
     required this.controller,
     required this.validator,
     this.keyboardType = TextInputType.text,
+    this.icon, // Con esto definimos un prefijo de ícono personalizable
   });
 
   @override
@@ -20,6 +22,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
+        prefixIcon: icon, // Usamos el ícono que nos pasen
         hintText: hintText,
         filled: true,
         fillColor: Colors.transparent,

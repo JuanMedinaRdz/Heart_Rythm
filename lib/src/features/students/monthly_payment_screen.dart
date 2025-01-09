@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart'; // Para HapticFeedback
+import 'package:flutter/services.dart'; 
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 
-// Puedes mantener la vista horizontal o vertical. Aquí optamos por la horizontal tipo timeline
-// pero con las mejoras visuales y el encabezado.
 class MonthlyPaymentScreen extends StatefulWidget {
   final String docId;
   final String studentName;
@@ -20,9 +18,11 @@ class MonthlyPaymentScreen extends StatefulWidget {
 }
 
 class _MonthlyPaymentScreenState extends State<MonthlyPaymentScreen> {
-  Map<String, bool> paidMonths = {};
-  String selectedYear = DateTime.now().year.toString(); // Año actual por defecto
+  // Estructura: paidMonths[year][month] = { "amountPaid": double, "isPaid": bool }
+  Map<String, dynamic> paidMonthsYear = {};
+  String selectedYear = DateTime.now().year.toString(); 
 
+  double amount = 0.0; // Cantidad total a pagar por mes
   final months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -31,67 +31,55 @@ class _MonthlyPaymentScreenState extends State<MonthlyPaymentScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPaidMonths();
+    _loadStudentData();
   }
 
-  Future<void> _loadPaidMonths() async {
+  // Carga los datos del alumno, incluyendo su 'amount' y 'paidMonths'
+  Future<void> _loadStudentData() async {
     final doc = await FirebaseFirestore.instance
         .collection('students')
         .doc(widget.docId)
         .get();
     final data = doc.data();
-    if (data != null && data['paidMonths'] != null && data['paidMonths'][selectedYear] != null) {
+    if (data == null) return;
 
+    // 1) Obtenemos el "amount" que define cuánto se debe pagar cada mes
+    amount = double.tryParse(data['amount'].toString()) ?? 0.0;
+
+    // 2) Cargamos la info de paidMonths para el año seleccionado
+    if (data['paidMonths'] != null && data['paidMonths'][selectedYear] != null) {
       setState(() {
-        paidMonths = Map<String, bool>.from(data['paidMonths'][selectedYear]);
+        paidMonthsYear = Map<String, dynamic>.from(data['paidMonths'][selectedYear]);
       });
     } else {
       setState(() {
-        paidMonths = {}; // Ningún mes pagado en este año
+        paidMonthsYear = {};
       });
     }
-  }
-
-  Future<void> _toggleMonth(String month) async {
-    final current = paidMonths[month] ?? false;
-    // Haptic feedback al interactuar
-    HapticFeedback.mediumImpact();
-
-    setState(() {
-      paidMonths[month] = !current;
-    });
-
-    // Actualizar en Firebase la estructura con el año
-    await FirebaseFirestore.instance
-        .collection('students')
-        .doc(widget.docId)
-        .update({
-      'paidMonths.$selectedYear': paidMonths
-    });
   }
 
   void _changeYear(String newYear) async {
     setState(() {
       selectedYear = newYear;
     });
-    await _loadPaidMonths();
+    await _loadStudentData();
   }
 
   @override
   Widget build(BuildContext context) {
-    final paidCount = paidMonths.values.where((v) => v).length;
+    final paidCount = paidMonthsYear.values
+        .where((monthMap) => (monthMap['isPaid'] ?? false) == true)
+        .length;
     final progress = paidCount / months.length;
 
     return Scaffold(
-appBar: AppBar(
-  leading: IconButton(
-    icon: const Icon(Icons.arrow_back),
-    onPressed: () {
-      Navigator.of(context).pop(); // Regresa a la pantalla anterior
-    },
-  ),
-),
-
+      appBar: AppBar(
+        title: Text('Mensualidades - ${widget.studentName}'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -103,11 +91,12 @@ appBar: AppBar(
         child: SafeArea(
           child: Column(
             children: [
-              _buildHeader(context),
+              const SizedBox(height: 16),
+              _buildHeader(),        // Encabezado con Monto, botón edición, y selector de año
               const SizedBox(height: 16),
               _buildStats(paidCount, progress),
               const SizedBox(height: 16),
-              _buildMonthTimeline(),
+              _buildMonthlyList(),
             ],
           ),
         ),
@@ -115,33 +104,25 @@ appBar: AppBar(
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  // Encabezado: Muestra el monto mensual y un botón para cambiarlo
+  Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal:16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal:16.0),
       child: Row(
         children: [
-          // Icono representativo, podría ser un avatar con iniciales del alumno
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primaryEnd,
-            child: Text(
-              widget.studentName.isNotEmpty ? widget.studentName[0] : '?',
-              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: 16),
+          // Texto de Monto Mensual
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
                 Text(
-                  widget.studentName,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  'Monto Mensual: \$${amount.toStringAsFixed(2)}', 
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  'Mensualidades $selectedYear',
-                  style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: _showEditAmountDialog,
+                  tooltip: 'Editar Monto Mensual',
+                )
               ],
             ),
           ),
@@ -158,9 +139,61 @@ appBar: AppBar(
     );
   }
 
+  // Muestra un diálogo para editar el monto (amount)
+  void _showEditAmountDialog() {
+    final TextEditingController amountController = 
+      TextEditingController(text: amount.toStringAsFixed(2));
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Editar Monto Mensual'),
+          content: TextField(
+            controller: amountController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Nuevo monto en pesos',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx), 
+              child: const Text('Cancelar')
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final input = amountController.text.trim();
+                if (input.isEmpty) return;
+
+                final newAmount = double.tryParse(input) ?? 0.0;
+                await _updateAmount(newAmount);
+
+                if (mounted) Navigator.pop(ctx);
+              }, 
+              child: const Text('Guardar'),
+            )
+          ],
+        );
+      }
+    );
+  }
+
+  Future<void> _updateAmount(double newAmount) async {
+    // 1) Actualiza la variable local
+    setState(() {
+      amount = newAmount;
+    });
+
+    // 2) Guarda en Firebase
+    await FirebaseFirestore.instance
+      .collection('students')
+      .doc(widget.docId)
+      .update({"amount": newAmount});
+  }
+
   List<DropdownMenuItem<String>> _buildYearOptions() {
     final currentYear = DateTime.now().year;
-    // Ejemplo: 2 años atrás, año actual, y 2 años adelante
     final years = List.generate(5, (i) => (currentYear - 2 + i).toString());
 
     return years.map((y) {
@@ -193,11 +226,11 @@ appBar: AppBar(
               const SizedBox(height: 8),
               Row(
                 children: [
-                  _buildLegendItem(AppColors.primaryStart, 'Pagado'),
+                  _buildLegendItem(AppColors.primaryStart, 'Completado'),
                   const SizedBox(width: 16),
                   _buildLegendItem(Colors.grey[300]!, 'Pendiente'),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -215,48 +248,110 @@ appBar: AppBar(
     );
   }
 
-  Widget _buildMonthTimeline() {
+  Widget _buildMonthlyList() {
     return Expanded(
-      child: Container(
+      child: ListView.separated(
+        itemCount: months.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
         padding: const EdgeInsets.symmetric(horizontal:16.0),
-        child: ListView.separated(
-          itemCount: months.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final month = months[index];
-            final isPaid = paidMonths[month] ?? false;
-            return _buildMonthCard(month, isPaid);
-          },
-        ),
+        itemBuilder: (context, index) {
+          final month = months[index];
+          final data = paidMonthsYear[month] ?? {"amountPaid": 0.0, "isPaid": false};
+          final isPaid = data["isPaid"] ?? false;
+          final amountPaid = data["amountPaid"] ?? 0.0;
+          final color = isPaid ? AppColors.primaryStart : Colors.grey[300];
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              title: Text(
+                month,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              subtitle: Text(
+                'Pagado: \$${amountPaid.toStringAsFixed(2)} de \$${amount.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+              trailing: Icon(
+                isPaid ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: isPaid ? Colors.white : Colors.black54,
+              ),
+              onTap: () => _showPaymentDialog(month),
+            ),
+          );
+        },
       ),
     );
   }
 
-Widget _buildMonthCard(String month, bool isPaid) {
-  final color = isPaid ? AppColors.primaryStart : Colors.grey[300];
+  void _showPaymentDialog(String month) {
+    final TextEditingController paymentController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text('Pago para $month'),
+          content: TextField(
+            controller: paymentController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Cantidad a abonar',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx), 
+              child: const Text('Cancelar')
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final input = paymentController.text.trim();
+                if (input.isEmpty) return;
 
-  return AnimatedContainer(
-    duration: const Duration(milliseconds: 300),
-    curve: Curves.easeInOut,
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(10),
-    ),
-    child: ListTile(
-      title: Text(
-        month,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.black, // Asegura que el texto sea negro
-        ),
-      ),
-      trailing: Icon(
-        isPaid ? Icons.check_circle : Icons.radio_button_unchecked,
-        color: isPaid ? Colors.white : Colors.black54,
-      ),
-      onTap: () => _toggleMonth(month),
-    ),
-  );
-}
+                final partialPayment = double.tryParse(input) ?? 0.0;
+                await _addPartialPayment(month, partialPayment);
+                if (mounted) Navigator.pop(ctx);
+              }, 
+              child: const Text('Guardar'),
+            )
+          ],
+        );
+      }
+    );
+  }
 
+  Future<void> _addPartialPayment(String month, double partialPayment) async {
+    HapticFeedback.mediumImpact();
+
+    var currentData = paidMonthsYear[month] ?? {"amountPaid": 0.0, "isPaid": false};
+    double currentPaid = (currentData["amountPaid"] ?? 0.0).toDouble();
+    double updatedPaid = currentPaid + partialPayment;
+
+    bool isPaidFlag = updatedPaid >= amount;
+
+    final updatedMonthData = {
+      "amountPaid": updatedPaid,
+      "isPaid": isPaidFlag,
+    };
+
+    setState(() {
+      paidMonthsYear[month] = updatedMonthData;
+    });
+
+    await FirebaseFirestore.instance
+      .collection('students')
+      .doc(widget.docId)
+      .update({
+        "paidMonths.$selectedYear.$month": updatedMonthData,
+        "amount": amount, // Aseguramos que el amount se mantenga actualizado
+      });
+  }
 }
