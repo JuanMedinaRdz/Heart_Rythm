@@ -26,16 +26,25 @@ void main() async {
     initSettings,
   );
 
+ 
+
   // Inicializa Firebase
   await FirebaseService.initializeFirebase(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await FirebaseMessaging.instance.requestPermission();
+  // Suscribirse al tema
+  await FirebaseMessaging.instance.subscribeToTopic("all_notes").then((_) {
+    print("Dispositivo suscrito al tema 'all_notes'");
+  }).catchError((e) {
+    print("Error al suscribirse al tema: $e");
+  });
 
-  // Suscribirte a topic 'allNotes' (o pedir token)
-  await FirebaseMessaging.instance.subscribeToTopic("all_notes");
-  // O, si quisieras el token para algo específico:
-  // final fcmToken = await FirebaseMessaging.instance.getToken();
-  // print('FCM token: $fcmToken');
+  await FirebaseMessaging.instance.subscribeToTopic("sample_classes").then((_) {
+    print("Dispositivo suscrito al tema 'sample_classes'");
+  }).catchError((e) {
+    print("Error al suscribirse al tema: $e");
+  });
 final token = await FirebaseMessaging.instance.getToken();
 print("FCM token: $token");
 FirebaseMessaging.onMessage.listen((RemoteMessage message) {

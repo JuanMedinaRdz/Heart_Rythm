@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
-import 'package:hearth_rythm/src/core/constants/text_styles.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_south_screen.dart';
 import 'package:hearth_rythm/src/widgets/south/navbar_south_screen.dart';
+import 'package:intl/intl.dart';
 
 class AlumnosListScreen extends StatefulWidget {
   const AlumnosListScreen({super.key});
@@ -70,11 +70,27 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
     });
   }
 
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.white70),
+        const SizedBox(width: 8),
+        Text(
+          "$label $value",
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Alumnos"),
+        title: const Text("Alumnos Sucursal Sur"),
         actions: [
           Builder(
             builder: (context) {
@@ -163,7 +179,7 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Buscar por nombre',
+                labelText: 'Buscar por nombre o telefono',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -194,9 +210,12 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
 
                 if (searchTerm.isNotEmpty) {
                   studentsSouth = studentsSouth.where((student) {
-                    String schedule =
+                    String name =
                         student['name']?.toString().toLowerCase() ?? '';
-                    return schedule.contains(searchTerm);
+                    String phone =
+                        student['phone']?.toString().toLowerCase() ?? '';
+                    return name.contains(searchTerm) ||
+                        phone.contains(searchTerm);
                   }).toList();
                 }
 
@@ -222,8 +241,18 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
                     String level = data['level'] ?? 'Sin Nivel';
                     String schedule = data['schedule'] ?? 'Sin Horario';
                     String teacher = data['teacher'] ?? 'Maestro desconocido';
-                    
+                    String danceStyle = data['danceStyle'] ?? 'Clase';
+
+                    String? rawDate = data['classDate'];
+                    DateTime? parsedDate =
+                        (rawDate != null) ? DateTime.tryParse(rawDate) : null;
+                    final DateFormat formatter = DateFormat('dd/MM/yyyy');
+
                     String initials = _getInitials(name);
+
+                    final containerColor = (level == "Clase Muestra")
+                        ? AppColors.claseMuestraContainer // color alternativo
+                        : AppColors.studentContainer;
 
                     return Dismissible(
                       key: Key(name),
@@ -245,8 +274,21 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
                               vertical: 8, horizontal: 16),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.studentContainer,
+                            color: containerColor,
                             borderRadius: BorderRadius.circular(10),
+                            gradient: LinearGradient(
+                              colors: level == "Clase Muestra"
+                                  ? [
+                                      AppColors.claseMuestraContainer,
+                                      Color.fromARGB(255, 163, 95, 165)
+                                    ]
+                                  : [
+                                      AppColors.secondStart,
+                                      AppColors.secondEnd
+                                    ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.3),
@@ -256,44 +298,86 @@ class _AlumnosListScreenState extends State<AlumnosListScreen> {
                               ),
                             ],
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CircleAvatar(
-                                radius: 25,
-                                backgroundColor: AppColors.secondStart,
-                                child: Text(
-                                  initials,
-                                  style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    name,
-                                    style: AppTextStyles.studentTextContainer,
+                                  CircleAvatar(
+                                    radius: 30,
+                                    backgroundColor: Colors.white,
+                                    child: Text(
+                                      initials,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text("Teléfono: $phone",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
-                                  const SizedBox(height: 4),
-                                  Text("Maestro: $teacher",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
-                                  const SizedBox(height: 4),
-                                  Text("Nivel: $level",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
-                                  const SizedBox(height: 4),
-                                  Text("Día: $schedule",
-                                      style:
-                                          AppTextStyles.studentTextContainer),
+                                  const SizedBox(width: 16),
+                                  Flexible(
+                                    // Envuelve el texto en Flexible
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: Colors.white,
+                                          ),
+                                          overflow: TextOverflow
+                                              .ellipsis, // Evita que el texto se desborde
+                                          maxLines:
+                                              1, // Limita el texto a una sola línea
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "Teléfono: $phone",
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.white70),
+                                          overflow: TextOverflow
+                                              .ellipsis, // Aplica también a otros textos
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
+                              const Divider(color: Colors.white, height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildInfoRow(Icons.school, "Nivel:", level),
+                                  _buildInfoRow(
+                                      Icons.schedule, "Horario:", schedule),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildInfoRow(
+                                      Icons.person, "Maestro:", teacher),
+                                  _buildInfoRow(Icons.directions_run, "Baile:",
+                                      danceStyle),
+                                ],
+                              ),
+                              if (level == "Clase Muestra" &&
+                                  parsedDate != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 12.0),
+                                  child: _buildInfoRow(Icons.event, "Fecha:",
+                                      formatter.format(parsedDate)),
+                                ),
                             ],
                           ),
                         ),

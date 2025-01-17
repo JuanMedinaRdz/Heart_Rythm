@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
-import 'package:hearth_rythm/src/core/constants/text_styles.dart';
 import 'package:hearth_rythm/src/features/students/student_detail_screen.dart';
 import 'package:hearth_rythm/src/widgets/north/navbar_north_screen.dart';
 import 'package:intl/intl.dart';
@@ -73,6 +72,22 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
     });
   }
 
+Widget _buildInfoRow(IconData icon, String label, String value) {
+  return Row(
+    children: [
+      Icon(icon, size: 20, color: Colors.white70),
+      const SizedBox(width: 8),
+      Text(
+        "$label $value",
+        style: const TextStyle(
+          fontSize: 14,
+          color: Colors.white,
+        ),
+      ),
+    ],
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +135,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                   const SizedBox(height: 16),
                   const Text("Filtrar por Día",
                       style: TextStyle(fontWeight: FontWeight.bold)),
-                  ...["Lun/Mie", "Mar/Jue", "Sabado"]
+                  ...["Lun/Mie", "Mar/Jue", "Sabado", "Miercoles", "Viernes"]
                       .map((option) => RadioListTile<String>(
                             title: Text(option),
                             value: option,
@@ -135,7 +150,7 @@ class _SalsaBachataScreenState extends State<SalsaBachataScreen> {
                   const SizedBox(height: 16),
                   const Text("Filtrar por Maestro",
                       style: TextStyle(fontWeight: FontWeight.bold)),
-                  ...["Desi", "Nico", "Juan", "Ximena", "Monse"]
+                  ...["Desi", "Nico", "Juan", "Ximena", "Monse", "Rebeca"]
                       .map((option) => RadioListTile<String>(
                             title: Text(option),
                             value: option,
@@ -269,6 +284,7 @@ return ListView.builder(
     String level = data['level'] ?? 'Sin Nivel';
     String teacher = data['teacher'] ?? 'Maestro desconocido';
     String schedule = data['schedule'] ?? 'Sin Horario';
+    String danceStyle = data['danceStyle'] ?? 'Sin estilo de baile';
     
     // Obtenemos la fecha en ISO8601
     String? rawDate = data['classDate'];
@@ -302,61 +318,98 @@ return ListView.builder(
       child: GestureDetector(
         onTap: () => openStudentDetail(context, name),
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: containerColor,       // <-- color distinto para clase muestra
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundColor: AppColors.primaryStart,
-                child: Text(
-                  initials,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: AppTextStyles.studentTextContainer),
-                  const SizedBox(height: 4),
-                  Text("Teléfono: $phone", style: AppTextStyles.studentTextContainer),
-                  const SizedBox(height: 4),
-                  Text("Nivel: $level", style: AppTextStyles.studentTextContainer),
-                  const SizedBox(height: 4),
-                  Text("Maestro: $teacher", style: AppTextStyles.studentTextContainer),
-                  const SizedBox(height: 4),
-                  Text("Día: $schedule", style: AppTextStyles.studentTextContainer),
-                  
-                  // Muestra la fecha formateada solo si es Clase Muestra y parsedDate no es null
-                  if (level == "Clase Muestra" && parsedDate != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(
-                        "Fecha: ${formatter.format(parsedDate)}",
-                        style: AppTextStyles.studentTextContainer,
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
+  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+  padding: const EdgeInsets.all(16),
+  decoration: BoxDecoration(
+    color: containerColor,
+    borderRadius: BorderRadius.circular(12),
+    gradient: LinearGradient(
+      colors: level == "Clase Muestra"
+          ? [AppColors.claseMuestraContainer, AppColors.primaryStart]
+          : [AppColors.primaryStart, AppColors.primaryEnd],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.grey.withOpacity(0.4),
+        spreadRadius: 2,
+        blurRadius: 6,
+        offset: const Offset(0, 3),
+      ),
+    ],
+  ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+Row(
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: [
+    CircleAvatar(
+      radius: 30,
+      backgroundColor: Colors.white,
+      child: Text(
+        initials,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+          color: Colors.black,
         ),
+      ),
+    ),
+    const SizedBox(width: 16),
+    Flexible( // Envuelve el texto en Flexible
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            name,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.white,
+            ),
+            overflow: TextOverflow.ellipsis, // Evita que el texto se desborde
+            maxLines: 1, // Limita el texto a una sola línea
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Teléfono: $phone",
+            style: const TextStyle(fontSize: 14, color: Colors.white70),
+            overflow: TextOverflow.ellipsis, // Aplica también a otros textos
+            maxLines: 1,
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+
+      const Divider(color: Colors.white, height: 20),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildInfoRow(Icons.school, "Nivel:", level),
+          _buildInfoRow(Icons.schedule, "Horario:", schedule),
+        ],
+      ),
+      const SizedBox(height: 10),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildInfoRow(Icons.person, "Maestro:", teacher),
+          _buildInfoRow(Icons.directions_run, "Baile:", danceStyle),
+        ],
+      ),
+      if (level == "Clase Muestra" && parsedDate != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: _buildInfoRow(Icons.event, "Fecha:", formatter.format(parsedDate)),
+        ),
+    ],
+  ),
+),
+
       ),
     );
   },

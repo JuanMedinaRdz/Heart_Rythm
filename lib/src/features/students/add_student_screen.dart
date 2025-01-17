@@ -40,26 +40,26 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   }
 
   void _saveStudent() {
-    final amountText = _paymentController.text.trim();
-    final newStudent = Student(
-      name: _nameController.text,
-      phone: _phoneController.text,
-      amount: amountText,
+  try {
+    final student = Student(
+      name: _nameController.text.trim(),
+      phone: _phoneController.text.trim(),
+      amount: _paymentController.text.trim(),
       danceStyle: _selectedDanceStyle,
       schedule: _selectedSchedule,
       level: _selectedLevel,
       teacher: _selectedTeacher,
-      classDate: _selectedLevel == 'Clase Muestra' ? _classDate : null,
+      classDate: _classDate,
     );
-
-    _studentRepo.addStudent(newStudent).then((_) {
-      _showSuccessAnimation();
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al agregar alumno')),
-      );
-    });
+    _studentRepo.addStudent(student);
+    _showSuccessAnimation();
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(e.toString())),
+    );
   }
+}
+
 
   void _showSuccessAnimation() {
     showDialog(
@@ -97,7 +97,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 const SizedBox(height: 16.0),
                 const SectionTitle('Selecciona el estilo de baile'),
                 SelectionButtonGroup(
-                  options: const ['Salsa', 'Cumbia'],
+                  options: const ['Salsa', 'Cumbia', 'Kisomba'],
                   selectedValue: _selectedDanceStyle,
                   onSelected: (value) =>
                       setState(() => _selectedDanceStyle = value),
@@ -105,7 +105,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 const SizedBox(height: 16.0),
                 const SectionTitle('Selecciona el horario'),
                 SelectionButtonGroup(
-                  options: const ['Lun/Mie', 'Mar/Jue', 'Sabado'],
+                  options: const ['Lun/Mie', 'Mar/Jue', 'Sabado', 'Miercoles', 'Viernes'],
                   selectedValue: _selectedSchedule,
                   onSelected: (value) =>
                       setState(() => _selectedSchedule = value),
@@ -135,7 +135,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 const SizedBox(height: 16.0),
                 const SectionTitle('Selecciona el Maestro'),
                 SelectionButtonGroup(
-                  options: const ['Desi', 'Nico', 'Juan', 'Ximena', 'Monse'],
+                  options: const ['Desi', 'Nico', 'Juan', 'Ximena', 'Monse', 'Rebeca'],
                   selectedValue: _selectedTeacher,
                   onSelected: (value) =>
                       setState(() => _selectedTeacher = value),
@@ -185,8 +185,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         if (value == null || value.isEmpty) {
           return 'Por favor ingresa un valor';
         }
-        if (value.trim().split('').length < 2) {
-          return 'Ingresa tu nombre completo';
+        final words = value.trim().split(' ');
+        if (words.length < 2) {
+          return 'Ingresa al menos 2 nombres. (Nombre - Apellido)';
         }
         return null;
       },

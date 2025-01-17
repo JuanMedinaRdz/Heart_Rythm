@@ -133,6 +133,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
+                  
                   const SizedBox(height: 8),
                   Center(
                     child: Text(

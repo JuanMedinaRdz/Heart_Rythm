@@ -98,19 +98,127 @@ class CalendarSouthWidgetState extends State<CalendarSouthWidget> {
     );
   }
 
-  Widget _buildEventList() {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: _selectedEvents.length,
-        itemBuilder: (context, index) {
-          var event = _selectedEvents[index];
-          return ListTile(
-            title: Text('Alumno: ${event['name']}'),
-            subtitle: Text('Teléfono: ${event['phone']}'),
-            trailing: Text('Nivel: ${event['level']}'),
-          );
-        },
+Widget _buildEventList() {
+  if (_selectedEvents.isEmpty) {
+    return const Center(
+      child: Text(
+        "No hay eventos para este día",
+        style: TextStyle(fontSize: 16, color: Colors.grey),
       ),
     );
   }
+
+  return Expanded(
+    child: ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: _selectedEvents.length,
+      itemBuilder: (context, index) {
+        final event = _selectedEvents[index];
+
+        final String name = event['name'] ?? 'Sin nombre';
+        final String phone = event['phone'] ?? 'Sin teléfono';
+        final String level = event['level'] ?? 'Sin nivel';
+
+        return GestureDetector(
+          onTap: () {
+            // Acción al presionar (puedes personalizar esto)
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text("Detalle de $name"),
+                content: Text(
+                  "Teléfono: $phone\nNivel: $level",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Cerrar"),
+                  ),
+                ],
+              ),
+            );
+          },
+          child: Card(
+            elevation: 4,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppColors.secondStart,
+                    radius: 24,
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.phone,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              phone,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.school,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              level,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
 }

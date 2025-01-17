@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hearth_rythm/src/core/constants/app_color.dart';
 import 'package:hearth_rythm/src/data/models/student_model.dart';
 import 'package:hearth_rythm/src/data/repositories/student_repository.dart';
+import 'package:hearth_rythm/src/widgets/north/custom_text_field.dart';
 import 'package:lottie/lottie.dart';
 
 class AddStudentScreenSouth extends StatefulWidget {
@@ -16,6 +17,7 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _paymentController = TextEditingController();
 
   String _selectedSchedule = '';
   String _selectedLevel = '';
@@ -26,6 +28,7 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
 
   @override
   void dispose() {
+    _paymentController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
     super.dispose();
@@ -53,6 +56,11 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
                 const SizedBox(height: 16.0),
                 _buildSectionTitle('Selecciona el nivel'),
                 _buildLevelButtons(),
+                const SizedBox(height: 16.0),
+                _buildSectionTitle('Mensualidad a pagar'),
+                const SizedBox(height: 16.0),
+                _buildPaymentField(
+                    'Ingresa una cantidad en pesos', _paymentController),
                 const SizedBox(height: 16.0),
                 _buildSectionTitle('Selecciona un Maestro'),
                 _buildTeacherButtons(),
@@ -111,8 +119,9 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
         if (value == null || value.isEmpty) {
           return 'Por favor ingresa un valor';
         }
-        if (value.trim().split('').length < 2) {
-          return 'Ingresa tu nombre completo';
+        final words = value.trim().split(' ');
+        if (words.length < 2) {
+          return 'Ingresa por lo menos 2 nombres';
         }
         return null;
       },
@@ -143,6 +152,25 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
         }
         return null;
       },
+    );
+  }
+
+  Widget _buildPaymentField(String hintText, TextEditingController controller) {
+    return CustomTextField(
+      hintText: hintText,
+      controller: controller,
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor ingresa la cantidad en pesos';
+        }
+        final numericRegex = RegExp(r'^[0-9]+(\.[0-9]+)?$');
+        if (!numericRegex.hasMatch(value)) {
+          return 'Ingresa un valor númerico válido';
+        }
+        return null;
+      },
+      icon: const Icon(Icons.attach_money),
     );
   }
 
@@ -297,9 +325,11 @@ class _AddStudentScreenSouthState extends State<AddStudentScreenSouth> {
   }
 
   void _saveStudent() {
+    final amountText = _paymentController.text.trim();
     final newStudent = Student(
       name: _nameController.text,
       phone: _phoneController.text,
+      amount: amountText,
       schedule: _selectedSchedule,
       level: _selectedLevel,
       teacher: _selectedTeacher,
